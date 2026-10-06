@@ -1,0 +1,1 @@
+Imports System.Windows.Forms; Imports System.Drawing; Module Program; Sub Main(); Dim f As New Form(); Dim l As New Label(); l.Text = " test125\ & vbCrLf & \08/07\; l.Font = New Font(\Segoe UI\, 6.5!); l.Size = New Size(72, 28); l.TextAlign = ContentAlignment.TopCenter; l.BackColor = Color.Orange; f.Controls.Add(l); f.ShowDialog(); End Sub; End Module

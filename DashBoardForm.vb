@@ -1,0 +1,1082 @@
+Imports System.Windows.Forms
+Imports System.Drawing
+Imports System.Data
+Imports LocalDb.Data.LocalDbClient
+
+Public Class DashBoardForm
+    Public ShowLobbyMode As Boolean = False
+    Private currentReservingSlot As String = ""
+    Private Const EM_SETCUEBANNER As Integer = &H1501
+
+    <System.Runtime.InteropServices.DllImport("user32.dll", CharSet:=System.Runtime.InteropServices.CharSet.Auto)>
+    Private Shared Function SendMessage(hWnd As IntPtr, msg As Integer, wParam As Integer, <System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)> lParam As String) As IntPtr
+    End Function
+
+    ' Kinukuha ang CustomerID o TellerID base sa Username, depende sa role
+    Private Function GetCurrentUserID(role As String, username As String) As Object
+        Try
+            Using conn As LocalDbConnection = GetConnection()
+                If conn IsNot Nothing Then
+                    If role = "Teller" Then
+                        Dim cmd As New LocalDbCommand("SELECT TellerID FROM tblteller WHERE Username = @user", conn)
+                        cmd.Parameters.AddWithValue("@user", username)
+                        Dim result = cmd.ExecuteScalar()
+                        Return If(result Is Nothing, CType(DBNull.Value, Object), result)
+
+                    ElseIf role = "Customer" Then
+                        Dim cmd As New LocalDbCommand("SELECT CustomerID FROM tblcustomer WHERE Username = @user", conn)
+                        cmd.Parameters.AddWithValue("@user", username)
+                        Dim result = cmd.ExecuteScalar()
+                        Return If(result Is Nothing, CType(DBNull.Value, Object), result)
+                    End If
+                End If
+            End Using
+        Catch ex As LocalDbException
+        End Try
+
+        Return DBNull.Value
+    End Function
+
+    ' Function para i-load ang data mula LocalStore papuntang ParkingData.ParkingTable
+    Public Sub LoadDataFromDatabase()
+        Try
+            Using conn As LocalDbConnection = GetConnection()
+                If conn IsNot Nothing Then
+                    ' Query para kuhanin ang lahat ng records sa LocalStore
+                    Dim query As String = "SELECT code AS Code, PlateNumber, CheckIn, CheckOut, " &
+                                         "VehicleType, RateName, (Rate + 0e0) AS Rate, `Parking Slot` AS Slot, " &
+                                         "Duration AS TotalTime, (TotalAmount + 0e0) AS TotalAmount, `Paid Status` AS PaidStatus, ReservationDate " &
+                                         "FROM tblparkingrecord"
+
+                    Dim adapter As New LocalDbDataAdapter(query, conn)
+                    Dim dt As New DataTable()
+                    adapter.Fill(dt)
+
+                    If ParkingData.ParkingTable IsNot Nothing Then
+                        ParkingData.ParkingTable.Clear()
+                        ParkingData.ParkingTable.Merge(dt)
+                    Else
+                        ParkingData.ParkingTable = dt
+                    End If
+                End If
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error sa pag-load ng data mula LocalStore: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Function GetActiveReservations() As DataTable
+        Dim dt As New DataTable()
+        Try
+            Using conn As LocalDbConnection = GetConnection()
+                If conn IsNot Nothing Then
+                    Dim query As String = "SELECT ReservationID, CustomerID, ParkingSlot, VehiclePlate, ReservationDate, StartTime, EndTime, Status, CreatedAt FROM tblreservation WHERE Status = 'Reserved'"
+                    Dim adapter As New LocalDbDataAdapter(query, conn)
+                    adapter.Fill(dt)
+                End If
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Error sa pag-load ng reservations: " & ex.Message, "Reservation Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End Try
+        Return dt
+    End Function
+
+    Private Sub DashBoardForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' I-load muna ang database data bago mag-update ng UI
+        LoadDataFromDatabase()
+
+        AddHandler btnExport.Click, Sub()
+                                        If dgvVehicles.Rows.Count = 0 Then
+                                            MessageBox.Show("No data to export.", "Empty", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                                            Return
+                                        End If
+
+                                        Using sfd As New SaveFileDialog()
+                                            sfd.Filter = "CSV Excel File (*.csv)|*.csv"
+                                            sfd.FileName = "Parking_Transaction_Log_" & DateTime.Now.ToString("yyyyMMdd") & ".csv"
+                                            If sfd.ShowDialog() = DialogResult.OK Then
+                                                Try
+                                                    Dim sb As New System.Text.StringBuilder()
+
+                                                    Dim headers As New List(Of String)()
+                                                    For Each col As DataGridViewColumn In dgvVehicles.Columns
+                                                        If col.Visible Then
+                                                            headers.Add("""" & col.HeaderText.Replace("""", """""") & """")
+                                                        End If
+                                                    Next
+                                                    sb.AppendLine(String.Join(",", headers))
+
+                                                    For Each row As DataGridViewRow In dgvVehicles.Rows
+                                                        If Not row.IsNewRow Then
+                                                            Dim cells As New List(Of String)()
+                                                            For Each cell As DataGridViewCell In row.Cells
+                                                                If dgvVehicles.Columns(cell.ColumnIndex).Visible Then
+                                                                    Dim val As String = If(cell.Value IsNot Nothing, cell.Value.ToString(), "")
+                                                                    cells.Add("""" & val.Replace("""", """""") & """")
+                                                                End If
+                                                            Next
+                                                            sb.AppendLine(String.Join(",", cells))
+                                                        End If
+                                                    Next
+
+                                                    System.IO.File.WriteAllText(sfd.FileName, sb.ToString())
+                                                    MessageBox.Show("Successfully exported to Excel!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                                                Catch ex As Exception
+                                                    MessageBox.Show("Error exporting: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                                End Try
+                                            End If
+                                        End Using
+                                    End Sub
+
+        AddHandler btnClearLog.Click, Sub()
+                                          Dim clearDlg As New ClearDialogForm()
+                                          If OverlayHelper.ShowDialog(Me, clearDlg) = DialogResult.Yes Then
+                                              ' Burahin ang mga "Paid" records sa LocalStore
+                                              Try
+                                                  Using conn As LocalDbConnection = GetConnection()
+                                                      If conn IsNot Nothing Then
+                                                          Dim delCmd As New LocalDbCommand("DELETE FROM tblparkingrecord WHERE `Paid Status` = 'Paid'", conn)
+                                                          delCmd.ExecuteNonQuery()
+                                                      End If
+                                                  End Using
+                                              Catch ex As LocalDbException
+                                                  MessageBox.Show("Error sa pagbura sa database: " & ex.Message, "Database Sync Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                              End Try
+
+                                              Dim rowsToDelete As New List(Of DataRow)
+                                              For Each row As DataRow In ParkingData.ParkingTable.Rows
+                                                  If row("PaidStatus").ToString() = "Paid" Then
+                                                      rowsToDelete.Add(row)
+                                                  End If
+                                              Next
+                                              If rowsToDelete.Count > 0 Then
+                                                  For Each row As DataRow In rowsToDelete
+                                                      ParkingData.ParkingTable.Rows.Remove(row)
+                                                  Next
+                                                  DataStore.SaveDatabase()
+                                                  UpdateSlots()
+                                              Else
+                                                  MessageBox.Show("There are no completed transactions to clear.", "Empty", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                                              End If
+                                          End If
+                                      End Sub
+
+        AddHandler Me.HandleCreated, Sub() SendMessage(txtSearchLog.Handle, EM_SETCUEBANNER, 0, "Search...")
+
+        Dim applyFilters As Action = Sub()
+                                         If ParkingData.ParkingTable IsNot Nothing Then
+                                             Dim filters As New List(Of String)
+
+                                             Dim fromDate As String = dtpFrom.Value.ToString("yyyy-MM-dd")
+                                             Dim toDate As String = dtpTo.Value.AddDays(1).ToString("yyyy-MM-dd")
+                                             filters.Add($"CheckIn >= '{fromDate}' AND CheckIn < '{toDate}'")
+
+                                             Dim searchText As String = txtSearchLog.Text.Trim().Replace("'", "''").Replace("[", "[[]").Replace("]", "[]]").Replace("*", "[*]").Replace("%", "[%]")
+                                             If searchText <> "" Then
+                                                 filters.Add($"(PlateNumber LIKE '%{searchText}%' OR Slot LIKE '%{searchText}%' OR PaidStatus LIKE '%{searchText}%')")
+                                             End If
+
+                                             Try
+                                                 ParkingData.ParkingTable.DefaultView.RowFilter = String.Join(" AND ", filters)
+                                             Catch ex As Exception
+                                             End Try
+                                         End If
+                                     End Sub
+
+        AddHandler dtpFrom.ValueChanged, Sub() applyFilters()
+        AddHandler dtpTo.ValueChanged, Sub() applyFilters()
+        AddHandler txtSearchLog.TextChanged, Sub() applyFilters()
+
+        ThemeManager.EnableDrag(pnlHeader, Me)
+        ThemeManager.AddMinimizeButton(pnlHeader, Me)
+
+        pnlSidebar.Width = Math.Max(pnlSidebar.Width, pnlStatsCars.Right + 15)
+
+        For Each pnl As Panel In {pnlStatsCars, pnlStatsMotors, pnlStatsSales}
+            For Each c As Control In pnl.Controls
+                If TypeOf c Is Label Then
+                    c.BackColor = Color.White
+                End If
+            Next
+        Next
+
+        ThemeManager.MakeRoundedControl(btnManage, 6)
+        ThemeManager.MakeRoundedControl(btnExit, 6)
+
+        ThemeManager.StyleCardPanel(pnlStatsCars, ThemeManager.TealAccent)
+        ThemeManager.StyleCardPanel(pnlStatsMotors, ThemeManager.TealAccent)
+        ThemeManager.StyleCardPanel(pnlStatsSales, ThemeManager.TealAccent)
+
+        ThemeManager.StyleButton(btnManage, ThemeManager.TealAccent)
+
+        AddHandler btnSettings.Click, Sub()
+                                          Dim configDlg As New RateConfigDialogForm()
+                                          If OverlayHelper.ShowDialog(Me, configDlg) = DialogResult.OK Then
+                                              UpdateSlots()
+                                              SuccessDialogForm.ShowSuccess("Rates updated successfully!")
+                                          End If
+                                      End Sub
+
+        If Form1.CurrentUserRole = "Admin" Then
+            lblSidebarTitle.Text = "Admin POS System"
+        ElseIf Form1.CurrentUserRole = "Teller" Then
+            lblSidebarTitle.Text = "Teller POS System"
+        ElseIf ShowLobbyMode Then
+            lblSidebarTitle.Text = "Public Live Map"
+            pnlStatsSales.Visible = False
+            btnManage.Visible = False
+            btnSettings.Visible = False
+            Button1.Visible = False
+            pnlTabBar.Visible = False
+            pnlTableView.Visible = False
+            pnlMapView.Visible = True
+        End If
+
+        btnTabMap.Text = "Visual Slot"
+        btnTabMap.Width = 112
+        btnTabMap.Top = 0
+
+        btnTabTable.Text = "Transaction"
+        btnTabTable.Width = 112
+        btnTabTable.Left = btnTabMap.Right
+        btnTabTable.Top = 0
+
+        btnTabAccounts.Text = "Account"
+        btnTabAccounts.Width = 112
+        btnTabAccounts.Left = btnTabTable.Right
+        btnTabAccounts.Top = 0
+
+        AddHandler btnTabMap.Click, Sub()
+                                        pnlMapView.Visible = True
+                                        pnlTableView.Visible = False
+                                        pnlAccountsView.Visible = False
+
+                                        btnExport.Visible = False
+                                        btnClearAccounts.Visible = False
+                                        btnClearLog.Visible = False
+                                        txtSearchLog.Visible = False
+                                        dtpFrom.Visible = False
+                                        dtpTo.Visible = False
+                                        lblDateSeparator.Visible = False
+
+                                        btnTabMap.BackColor = Color.White
+                                        btnTabMap.ForeColor = ThemeManager.TextNavy
+
+                                        btnTabTable.BackColor = Color.Transparent
+                                        btnTabTable.ForeColor = ThemeManager.TextGray
+
+                                        btnTabAccounts.BackColor = Color.Transparent
+                                        btnTabAccounts.ForeColor = ThemeManager.TextGray
+                                    End Sub
+
+        AddHandler btnTabTable.Click, Sub()
+                                          pnlMapView.Visible = False
+                                          pnlTableView.Visible = True
+                                          pnlAccountsView.Visible = False
+                                          btnExport.Visible = True
+                                          btnClearAccounts.Visible = False
+                                          btnClearLog.Visible = (Form1.CurrentUserRole = "Admin")
+                                          txtSearchLog.Visible = True
+                                          dtpFrom.Visible = True
+                                          dtpTo.Visible = True
+                                          lblDateSeparator.Visible = True
+
+                                          btnTabTable.BackColor = Color.White
+                                          btnTabTable.ForeColor = ThemeManager.TextNavy
+
+                                          btnTabMap.BackColor = Color.Transparent
+                                          btnTabMap.ForeColor = ThemeManager.TextGray
+
+                                          btnTabAccounts.BackColor = Color.Transparent
+                                          btnTabAccounts.ForeColor = ThemeManager.TextGray
+                                      End Sub
+
+        AddHandler btnTabAccounts.Click, Sub()
+                                             pnlMapView.Visible = False
+                                             pnlTableView.Visible = False
+                                             pnlAccountsView.Visible = True
+
+                                             btnExport.Visible = False
+                                             btnClearAccounts.Visible = (Form1.CurrentUserRole = "Admin")
+                                             btnClearLog.Visible = False
+                                             txtSearchLog.Visible = False
+                                             dtpFrom.Visible = False
+                                             dtpTo.Visible = False
+                                             lblDateSeparator.Visible = False
+
+                                             btnTabAccounts.BackColor = Color.White
+                                             btnTabAccounts.ForeColor = ThemeManager.TextNavy
+
+                                             btnTabMap.BackColor = Color.Transparent
+                                             btnTabMap.ForeColor = ThemeManager.TextGray
+
+                                             btnTabTable.BackColor = Color.Transparent
+                                             btnTabTable.ForeColor = ThemeManager.TextGray
+
+                                             LoadUsersFromMySql()
+                                         End Sub
+
+        If Form1.CurrentUserRole <> "Admin" Then
+            btnTabAccounts.Visible = False
+        End If
+
+        SetupContextMenus()
+        UpdateSlots()
+
+        AddHandler pnlStatsSales.Paint, Sub(senderPaint, ePaint)
+                                            Dim g As Graphics = ePaint.Graphics
+                                            g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+
+                                            Using cashPen As New Pen(Color.FromArgb(46, 186, 104), 1.5)
+                                                g.DrawRectangle(cashPen, 130, 10, 20, 12)
+                                                g.DrawEllipse(cashPen, 136, 12, 8, 8)
+                                                Using font As New Font("Segoe UI", 6, FontStyle.Bold)
+                                                    g.DrawString("₱", font, New SolidBrush(Color.FromArgb(46, 186, 104)), 136.5F, 11)
+                                                End Using
+                                            End Using
+
+                                            Using font As New Font("Segoe UI", 9)
+                                                Dim vehiclesText As String = "Vehicles Today: 0"
+                                                If lblTotalSales.Tag IsNot Nothing Then
+                                                    vehiclesText = $"Vehicles Today: {lblTotalSales.Tag.ToString()}"
+                                                End If
+                                                g.DrawString(vehiclesText, font, New SolidBrush(Color.FromArgb(120, 125, 130)), 11, 60)
+                                            End Using
+                                        End Sub
+
+        Dim drawRateBtn As Action(Of RadioButton, PaintEventArgs, String, String, String) =
+            Sub(rdo, ePaintBtn, icon, label, rate)
+                Dim g As Graphics = ePaintBtn.Graphics
+                g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+                Dim isChecked As Boolean = rdo.Checked
+
+                Dim bgColor As Color = If(isChecked, Color.FromArgb(228, 240, 240), Color.White)
+                Dim borderColor As Color = If(isChecked, Color.FromArgb(0, 139, 139), Color.FromArgb(220, 225, 230))
+                Dim textColor As Color = If(isChecked, Color.FromArgb(27, 42, 71), Color.FromArgb(80, 88, 102))
+
+                g.Clear(bgColor)
+
+                Using p As New Pen(borderColor, 1.5)
+                    Dim radius As Integer = 8
+                    Dim gp As New Drawing2D.GraphicsPath()
+                    gp.AddArc(0, 0, radius, radius, 180, 90)
+                    gp.AddArc(rdo.Width - radius - 1, 0, radius, radius, 270, 90)
+                    gp.AddArc(rdo.Width - radius - 1, rdo.Height - radius - 1, radius, radius, 0, 90)
+                    gp.AddArc(0, rdo.Height - radius - 1, radius, radius, 90, 90)
+                    gp.CloseFigure()
+                    g.DrawPath(p, gp)
+                End Using
+
+                Using iconFont As New Font("Segoe UI Emoji", 12)
+                    g.DrawString(icon, iconFont, New SolidBrush(textColor), 10, 8)
+                End Using
+
+                Using f As New Font("Segoe UI", 8.25!, FontStyle.Bold)
+                    g.DrawString(label, f, New SolidBrush(textColor), 33, 11)
+                    Dim rateSize = g.MeasureString(rate, f)
+                    g.DrawString(rate, f, New SolidBrush(textColor), rdo.Width - rateSize.Width - 5, 11)
+                End Using
+            End Sub
+
+        AddHandler rdoCarr.Paint, Sub(sPaint, ePaintBtn) drawRateBtn(rdoCarr, ePaintBtn, "🚗", "Car", "₱" & ParkingData.CarBaseRate.ToString("F0") & "/hr")
+        AddHandler rdoMotor.Paint, Sub(sPaint, ePaintBtn) drawRateBtn(rdoMotor, ePaintBtn, "🏍️", "Motor", "₱" & ParkingData.MotorBaseRate.ToString("F0") & "/hr")
+
+        AddHandler btnManage.Paint, Sub(sPaint, ePaintBtn)
+                                        Dim g As Graphics = ePaintBtn.Graphics
+                                        g.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+                                        Dim rect As New Rectangle(25, 12, 16, 16)
+                                        Using p As New Pen(Color.White, 1.5)
+                                            g.DrawRectangle(p, rect.X, rect.Y, 6, 6)
+                                            g.DrawRectangle(p, rect.X + 8, rect.Y, 6, 6)
+                                            g.DrawRectangle(p, rect.X, rect.Y + 8, 6, 6)
+                                            g.DrawRectangle(p, rect.X + 8, rect.Y + 8, 6, 6)
+                                        End Using
+                                    End Sub
+
+        Try
+            If rdoCarr IsNot Nothing Then
+                AddHandler rdoCarr.CheckedChanged, Sub() UpdateRateLabel()
+            End If
+        Catch
+        End Try
+
+        Try
+            If rdoMotor IsNot Nothing Then
+                AddHandler rdoMotor.CheckedChanged, Sub() UpdateRateLabel()
+            End If
+        Catch
+        End Try
+
+        UpdateRateLabel()
+    End Sub
+
+    Private Sub LoadUsersFromMySql()
+        Try
+            Dim dt As New DataTable("UserRecord")
+
+            Dim sql As String =
+                "SELECT Fullname AS FullName, Username, Password, 'Customer' AS Role " &
+                "FROM tblcustomer " &
+                "UNION ALL " &
+                "SELECT FullName, Username, Password, 'Teller' AS Role " &
+                "FROM tblteller " &
+                "ORDER BY Username"
+
+            Using conn As LocalDbConnection = GetConnection()
+                Dim adapter As New LocalDbDataAdapter(sql, conn)
+                adapter.Fill(dt)
+            End Using
+
+            Dim adminRow As DataRow = dt.NewRow()
+            adminRow("FullName") = "Administrator"
+            adminRow("Username") = "admin"
+            adminRow("Password") = "1234"
+            adminRow("Role") = "Admin"
+            dt.Rows.InsertAt(adminRow, 0)
+
+            ParkingData.UsersTable = dt
+
+            dgvAccounts.DataSource = Nothing
+            dgvAccounts.DataSource = dt
+            dgvAccounts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+
+        Catch ex As Exception
+            MessageBox.Show("Unable to load accounts from MySQL: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub SetupContextMenus()
+        Dim cmsAccounts As New ContextMenuStrip()
+        Dim tsmiDeleteAccount As New ToolStripMenuItem("Delete User")
+        cmsAccounts.Items.Add(tsmiDeleteAccount)
+        dgvAccounts.ContextMenuStrip = cmsAccounts
+
+        AddHandler tsmiDeleteAccount.Click, Sub(sender As Object, e As EventArgs)
+                                                If dgvAccounts.SelectedRows.Count > 0 Then
+                                                    Dim selectedRow = dgvAccounts.SelectedRows(0)
+                                                    Dim username As String = selectedRow.Cells("Username").Value.ToString()
+
+                                                    If username.ToLower() = "admin" Then
+                                                        MessageBox.Show("Cannot delete the admin account.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                                        Return
+                                                    End If
+
+                                                    Dim confirmDlg As New ConfirmActionDialogForm("Delete User", $"Are you sure you want to delete user '{username}'?", "YES")
+                                                    If OverlayHelper.ShowDialog(Me, confirmDlg) = DialogResult.Yes Then
+                                                        Dim role As String = If(selectedRow.Cells("Role").Value, "").ToString()
+                                                        Dim tableName As String = If(role.Equals("Teller", StringComparison.OrdinalIgnoreCase), "tblteller", "tblcustomer")
+
+                                                        Try
+                                                            Using conn As LocalDbConnection = GetConnection()
+                                                                Dim delCmd As New LocalDbCommand("DELETE FROM " & tableName & " WHERE Username = @username", conn)
+                                                                delCmd.Parameters.AddWithValue("@username", username)
+                                                                delCmd.ExecuteNonQuery()
+                                                            End Using
+                                                            LoadUsersFromMySql()
+                                                        Catch ex As LocalDbException
+                                                            MessageBox.Show("Unable to delete account: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                                        End Try
+                                                    End If
+                                                End If
+                                            End Sub
+
+        dgvVehicles.AllowUserToDeleteRows = False
+        Dim cmsVehicles As New ContextMenuStrip()
+        Dim tsmiDeleteVehicle As New ToolStripMenuItem("Delete Record / Cancel Reservation")
+        cmsVehicles.Items.Add(tsmiDeleteVehicle)
+        dgvVehicles.ContextMenuStrip = cmsVehicles
+
+        AddHandler tsmiDeleteVehicle.Click, Sub(sender As Object, e As EventArgs)
+                                                If dgvVehicles.SelectedRows.Count > 0 Then
+                                                    Dim selectedRow = dgvVehicles.SelectedRows(0)
+                                                    Dim plate As String = selectedRow.Cells("PlateNumber").Value.ToString()
+                                                    Dim slot As String = selectedRow.Cells("Slot").Value.ToString()
+
+                                                    Dim confirmDlg As New ConfirmActionDialogForm("Delete Record", $"Are you sure you want to delete the record for '{plate}' in slot {slot}?", "YES")
+                                                    If OverlayHelper.ShowDialog(Me, confirmDlg) = DialogResult.Yes Then
+                                                        Dim deletedCode As String = ""
+                                                        For Each row As DataRow In ParkingData.ParkingTable.Rows
+                                                            If row("PlateNumber").ToString() = plate AndAlso row("Slot").ToString() = slot Then
+                                                                deletedCode = row("Code").ToString()
+                                                                row.Delete()
+                                                                Exit For
+                                                            End If
+                                                        Next
+                                                        ParkingData.ParkingTable.AcceptChanges()
+                                                        DataStore.SaveDatabase()
+
+                                                        ' LocalDb Sync - Burahin sa LocalStore
+                                                        If deletedCode <> "" Then
+                                                            Try
+                                                                Using conn As LocalDbConnection = GetConnection()
+                                                                    If conn IsNot Nothing Then
+                                                                        Dim delCmd As New LocalDbCommand("DELETE FROM tblparkingrecord WHERE code = @code", conn)
+                                                                        delCmd.Parameters.AddWithValue("@code", deletedCode)
+                                                                        delCmd.ExecuteNonQuery()
+                                                                    End If
+                                                                End Using
+                                                            Catch ex As LocalDbException
+                                                                MessageBox.Show("Warning: Hindi na-delete sa LocalStore: " & ex.Message, "Database Sync Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                                            End Try
+                                                        End If
+
+                                                        If ParkingData.parkingDatabase.ContainsKey(slot) Then
+                                                            ParkingData.parkingDatabase(slot) = True
+                                                        End If
+
+                                                        UpdateSlots()
+                                                    End If
+                                                End If
+                                            End Sub
+    End Sub
+
+    Private Sub UpdateRateLabel()
+        Try
+            If rdoCarr IsNot Nothing AndAlso rdoCarr.Checked Then
+                If lblPrice IsNot Nothing Then lblPrice.Text = "₱" & ParkingData.CarBaseRate.ToString("F2")
+                If rdoMotor IsNot Nothing Then rdoMotor.Invalidate()
+                rdoCarr.Invalidate()
+                Return
+            End If
+
+            If rdoMotor IsNot Nothing AndAlso rdoMotor.Checked Then
+                If lblPrice IsNot Nothing Then lblPrice.Text = "₱" & ParkingData.MotorBaseRate.ToString("F2")
+                If rdoCarr IsNot Nothing Then rdoCarr.Invalidate()
+                rdoMotor.Invalidate()
+                Return
+            End If
+        Catch
+        End Try
+    End Sub
+
+    Public Sub UpdateSlots()
+        Dim maxCarSlots As Integer = 50
+        Dim maxMotorSlots As Integer = 20
+
+        ParkingData.InitializeDatabase()
+
+        Dim occupiedCars As Integer = 0
+        Dim occupiedMotors As Integer = 0
+        Dim totalSales As Double = 0.0
+        Dim todayRevenue As Double = 0.0
+        Dim vehiclesToday As Integer = 0
+        Dim activeReservations As DataTable = GetActiveReservations()
+
+        If ParkingData.ParkingTable IsNot Nothing Then
+            For Each row As DataRow In ParkingData.ParkingTable.Rows
+                If row("PaidStatus").ToString() = "Not Paid" Then
+                    If row("VehicleType").ToString() = "Four Wheels" Then
+                        occupiedCars += 1
+                    ElseIf row("VehicleType").ToString() = "Two Wheels" Then
+                        occupiedMotors += 1
+                    End If
+                End If
+
+                Dim checkInDate As DateTime
+                If DateTime.TryParse(row("CheckIn").ToString(), checkInDate) Then
+                    If checkInDate.Date = DateTime.Today Then
+                        vehiclesToday += 1
+                    End If
+                End If
+
+                If Not IsDBNull(row("TotalAmount")) Then
+                    totalSales += Convert.ToDouble(row("TotalAmount"))
+                End If
+
+                If row("PaidStatus").ToString() = "Paid" AndAlso Not IsDBNull(row("TotalAmount")) Then
+                    Dim checkOutDate As DateTime
+                    If DateTime.TryParse(row("CheckOut").ToString(), checkOutDate) Then
+                        If checkOutDate.Date = DateTime.Today Then
+                            todayRevenue += Convert.ToDouble(row("TotalAmount"))
+                        End If
+                    End If
+                End If
+            Next
+        End If
+
+        For Each resRow As DataRow In activeReservations.Rows
+            Dim slotName As String = resRow("ParkingSlot").ToString()
+            Dim slotNum As Integer = 0
+            If slotName.Length > 1 Then Integer.TryParse(slotName.Substring(1), slotNum)
+            If slotNum <= 25 Then
+                occupiedCars += 1
+            Else
+                occupiedMotors += 1
+            End If
+        Next
+
+        Dim availableCars As Integer = maxCarSlots - occupiedCars
+        Dim availableMotors As Integer = maxMotorSlots - occupiedMotors
+
+        lblAvailableCars.Text = $"{availableCars} / {maxCarSlots}"
+        lblOccupiedCars.Text = "available"
+
+        lblAvailableMotors.Text = $"{availableMotors} / {maxMotorSlots}"
+        lblOccupiedMotors.Text = "available"
+
+        lblTotalSales.Text = $"₱{todayRevenue.ToString("F2")}"
+        lblTotalSales.Tag = vehiclesToday
+
+        pnlStatsCars.Invalidate()
+        pnlStatsMotors.Invalidate()
+
+        dgvVehicles.DataSource = Nothing
+        dgvVehicles.DataSource = ParkingData.ParkingTable
+
+        If dgvVehicles.Columns.Contains("Code") Then dgvVehicles.Columns("Code").Visible = False
+        If dgvVehicles.Columns.Contains("PlateNumber") Then dgvVehicles.Columns("PlateNumber").HeaderText = "Plate Number"
+
+        If dgvVehicles.Columns.Contains("CheckIn") Then
+            dgvVehicles.Columns("CheckIn").HeaderText = "Time In"
+            dgvVehicles.Columns("CheckIn").DefaultCellStyle.Format = "yyyy-MM-dd hh:mm tt"
+        End If
+
+        If dgvVehicles.Columns.Contains("CheckOut") Then
+            dgvVehicles.Columns("CheckOut").HeaderText = "Time Out"
+            dgvVehicles.Columns("CheckOut").DefaultCellStyle.Format = "yyyy-MM-dd hh:mm tt"
+        End If
+
+        If dgvVehicles.Columns.Contains("VehicleType") Then dgvVehicles.Columns("VehicleType").HeaderText = "Vehicle Type"
+        If dgvVehicles.Columns.Contains("RateName") Then dgvVehicles.Columns("RateName").Visible = False
+        If dgvVehicles.Columns.Contains("Rate") Then dgvVehicles.Columns("Rate").Visible = False
+
+        If dgvVehicles.Columns.Contains("Slot") Then dgvVehicles.Columns("Slot").HeaderText = "Parking Slot"
+        If dgvVehicles.Columns.Contains("TotalTime") Then dgvVehicles.Columns("TotalTime").HeaderText = "Duration"
+
+        If dgvVehicles.Columns.Contains("TotalAmount") Then
+            dgvVehicles.Columns("TotalAmount").DefaultCellStyle.Format = "₱0.00"
+            dgvVehicles.Columns("TotalAmount").DefaultCellStyle.NullValue = "₱"
+        End If
+
+        If dgvVehicles.Columns.Contains("PaidStatus") Then dgvVehicles.Columns("PaidStatus").HeaderText = "Paid Status"
+
+        dgvVehicles.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
+
+        If ShowLobbyMode Then
+            If dgvVehicles IsNot Nothing Then dgvVehicles.Visible = False
+            If lblTotalSales IsNot Nothing Then lblTotalSales.Visible = False
+            If btnManage IsNot Nothing Then btnManage.Visible = False
+            If Button1 IsNot Nothing Then Button1.Visible = False
+        Else
+            If dgvVehicles IsNot Nothing Then dgvVehicles.Visible = True
+            If lblTotalSales IsNot Nothing Then lblTotalSales.Visible = (Form1.CurrentUserRole = "Admin")
+            If btnManage IsNot Nothing Then btnManage.Visible = True
+            If btnSettings IsNot Nothing Then btnSettings.Visible = (Form1.CurrentUserRole = "Admin")
+            If Button1 IsNot Nothing Then Button1.Visible = (Form1.CurrentUserRole = "Admin")
+        End If
+
+        For Each ctrl As Control In flpCarSlots.Controls
+            ctrl.Dispose()
+        Next
+        For Each ctrl As Control In flpMotorSlots.Controls
+            ctrl.Dispose()
+        Next
+        flpCarSlots.Controls.Clear()
+        flpMotorSlots.Controls.Clear()
+
+        flpCarSlots.SuspendLayout()
+        flpMotorSlots.SuspendLayout()
+
+        For Each slotEntry In ParkingData.parkingDatabase
+            Dim slotName As String = slotEntry.Key
+            Dim isAvailable As Boolean = slotEntry.Value
+
+            Dim plateText As String = ""
+            Dim isReserved As Boolean = False
+            Dim reservedBy As String = ""
+            Dim resDateStr As String = ""
+
+            For Each row As DataRow In ParkingData.ParkingTable.Rows
+                If row("Slot").ToString() = slotName AndAlso row("PaidStatus").ToString() = "Not Paid" Then
+                    plateText = row("PlateNumber").ToString()
+                    Exit For
+                End If
+            Next
+
+            If plateText = "" Then
+                For Each resRow As DataRow In activeReservations.Rows
+                    If resRow("ParkingSlot").ToString() = slotName Then
+                        If Not IsDBNull(resRow("CustomerID")) Then
+                            reservedBy = "Customer ID: " & resRow("CustomerID").ToString()
+                        End If
+                        If Not IsDBNull(resRow("ReservationDate")) Then
+                            resDateStr = Convert.ToDateTime(resRow("ReservationDate")).ToString("MM/dd")
+                        End If
+                        plateText = "RESERVED"
+                        isReserved = True
+                        Exit For
+                    End If
+                Next
+            End If
+
+            Dim pnlSlot As New Panel()
+            pnlSlot.Size = New Size(72, 85)
+            pnlSlot.Margin = New Padding(4)
+            pnlSlot.BackColor = Color.White
+
+            Dim baseColor As Color
+            Dim hoverColor As Color
+
+            If isReserved Then
+                baseColor = Color.FromArgb(240, 160, 40)
+                hoverColor = Color.FromArgb(250, 180, 60)
+            ElseIf isAvailable Then
+                baseColor = Color.FromArgb(0, 168, 181)
+                hoverColor = Color.FromArgb(20, 188, 201)
+            Else
+                baseColor = Color.FromArgb(220, 60, 60)
+                hoverColor = Color.FromArgb(240, 80, 80)
+            End If
+
+            Dim currentBgColor = baseColor
+
+            AddHandler pnlSlot.Paint, Sub(sSender, sEvent)
+                                          sEvent.Graphics.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
+                                          Dim rect As New Rectangle(0, 0, pnlSlot.Width - 1, pnlSlot.Height - 1)
+                                          Dim path As New Drawing2D.GraphicsPath()
+                                          Dim r As Integer = 8
+                                          path.AddArc(rect.X, rect.Y, r, r, 180, 90)
+                                          path.AddArc(rect.Right - r, rect.Y, r, r, 270, 90)
+                                          path.AddArc(rect.Right - r, rect.Bottom - r, r, r, 0, 90)
+                                          path.AddArc(rect.X, rect.Bottom - r, r, r, 90, 90)
+                                          path.CloseFigure()
+
+                                          Using brush As New SolidBrush(currentBgColor)
+                                              sEvent.Graphics.FillPath(brush, path)
+                                          End Using
+                                      End Sub
+
+            AddHandler pnlSlot.MouseEnter, Sub(s, ev)
+                                               currentBgColor = hoverColor
+                                               pnlSlot.Invalidate()
+                                           End Sub
+            AddHandler pnlSlot.MouseLeave, Sub(s, ev)
+                                               currentBgColor = baseColor
+                                               pnlSlot.Invalidate()
+                                           End Sub
+
+            Dim lblName As New Label()
+            lblName.Text = slotName
+            lblName.Font = New Font("Segoe UI", 8.5!, FontStyle.Bold)
+            lblName.ForeColor = Color.White
+            lblName.Location = New Point(0, 4)
+            lblName.Size = New Size(72, 20)
+            lblName.TextAlign = ContentAlignment.MiddleCenter
+            lblName.BackColor = Color.Transparent
+            pnlSlot.Controls.Add(lblName)
+
+            Dim lblStatus As New Label()
+            lblStatus.Text = If(plateText = "", "VACANT", plateText)
+            lblStatus.Font = New Font("Segoe UI Semibold", 7.0!)
+            lblStatus.ForeColor = Color.FromArgb(240, 240, 240)
+
+            If isReserved Then
+                lblName.Location = New Point(0, 0)
+                lblStatus.Location = New Point(0, 20)
+            Else
+                lblStatus.Location = New Point(0, 25)
+            End If
+
+            lblStatus.Size = New Size(72, 20)
+            lblStatus.TextAlign = ContentAlignment.MiddleCenter
+            lblStatus.BackColor = Color.Transparent
+            pnlSlot.Controls.Add(lblStatus)
+
+            Dim lblReserver As Label = Nothing
+            Dim lblDate As Label = Nothing
+            If isReserved Then
+                If reservedBy <> "" Then
+                    lblReserver = New Label()
+                    lblReserver.Text = reservedBy
+                    lblReserver.Font = New Font("Segoe UI", 7.5!)
+                    lblReserver.ForeColor = Color.FromArgb(240, 240, 240)
+                    lblReserver.Location = New Point(0, 40)
+                    lblReserver.Size = New Size(72, 20)
+                    lblReserver.TextAlign = ContentAlignment.MiddleCenter
+                    lblReserver.BackColor = Color.Transparent
+                    pnlSlot.Controls.Add(lblReserver)
+                End If
+
+                If resDateStr <> "" Then
+                    lblDate = New Label()
+                    lblDate.Text = resDateStr
+                    lblDate.Font = New Font("Segoe UI", 7.5!, FontStyle.Italic)
+                    lblDate.ForeColor = Color.FromArgb(220, 220, 220)
+                    lblDate.Location = New Point(0, 60)
+                    lblDate.Size = New Size(72, 20)
+                    lblDate.TextAlign = ContentAlignment.MiddleCenter
+                    lblDate.BackColor = Color.Transparent
+                    pnlSlot.Controls.Add(lblDate)
+                End If
+            End If
+
+            AddHandler lblName.MouseEnter, Sub(s, ev)
+                                               currentBgColor = hoverColor
+                                               pnlSlot.Invalidate()
+                                           End Sub
+            AddHandler lblName.MouseLeave, Sub(s, ev)
+                                               currentBgColor = baseColor
+                                               pnlSlot.Invalidate()
+                                           End Sub
+            AddHandler lblStatus.MouseEnter, Sub(s, ev)
+                                                 currentBgColor = hoverColor
+                                                 pnlSlot.Invalidate()
+                                             End Sub
+            AddHandler lblStatus.MouseLeave, Sub(s, ev)
+                                                 currentBgColor = baseColor
+                                                 pnlSlot.Invalidate()
+                                             End Sub
+
+            If lblReserver IsNot Nothing Then
+                AddHandler lblReserver.MouseEnter, Sub(s, ev)
+                                                       currentBgColor = hoverColor
+                                                       pnlSlot.Invalidate()
+                                                   End Sub
+                AddHandler lblReserver.MouseLeave, Sub(s, ev)
+                                                       currentBgColor = baseColor
+                                                       pnlSlot.Invalidate()
+                                                   End Sub
+            End If
+
+            If lblDate IsNot Nothing Then
+                AddHandler lblDate.MouseEnter, Sub(s, ev)
+                                                   currentBgColor = hoverColor
+                                                   pnlSlot.Invalidate()
+                                               End Sub
+                AddHandler lblDate.MouseLeave, Sub(s, ev)
+                                                   currentBgColor = baseColor
+                                                   pnlSlot.Invalidate()
+                                               End Sub
+            End If
+
+            If isAvailable Then
+                pnlSlot.Cursor = Cursors.Hand
+                AddHandler pnlSlot.Click, Sub()
+                                              Dim resDlg As New ReserveDialogForm(slotName)
+                                              If OverlayHelper.ShowDialog(Me, resDlg) = DialogResult.OK Then
+                                                  Dim resPlate As String = resDlg.PlateNumber
+
+                                                  Dim isDuplicate As Boolean = False
+                                                  For Each row As DataRow In ParkingData.ParkingTable.Rows
+                                                      If row("PlateNumber").ToString().ToUpper() = resPlate.ToUpper() AndAlso row("PaidStatus").ToString() = "Not Paid" Then
+                                                          isDuplicate = True
+                                                          Exit For
+                                                      End If
+                                                  Next
+
+                                                  If Not isDuplicate Then
+                                                      Dim currentReservations As DataTable = GetActiveReservations()
+                                                      For Each resRow As DataRow In currentReservations.Rows
+                                                          If resRow("VehiclePlate").ToString().ToUpper() = resPlate.ToUpper() Then
+                                                              isDuplicate = True
+                                                              Exit For
+                                                          End If
+                                                      Next
+                                                  End If
+
+                                                  If isDuplicate Then
+                                                      MessageBox.Show("This plate number is already parked or has an active reservation.", "Duplicate Plate", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                                  Else
+                                                      Dim resDate As DateTime = resDlg.ReservationDate
+                                                      If resDate.Date = DateTime.Now.Date Then
+                                                          ParkingData.parkingDatabase(slotName) = False
+                                                      End If
+
+                                                      Dim vTypeVal As String
+                                                      Dim isCar As Boolean = (slotName.StartsWith("G") OrElse slotName.StartsWith("U")) AndAlso Convert.ToInt32(slotName.Substring(1)) <= 25
+                                                      vTypeVal = If(isCar, "Four Wheels", "Two Wheels")
+
+                                                      Try
+                                                          Dim customerID As Object = DBNull.Value
+                                                          If Form1.CurrentUserRole = "Customer" Then
+                                                              customerID = GetCurrentUserID("Customer", Form1.CurrentUsername)
+                                                          End If
+
+                                                          Using conn As LocalDbConnection = GetConnection()
+                                                              If conn IsNot Nothing Then
+                                                                  Dim insCmd As New LocalDbCommand("INSERT INTO tblreservation (CustomerID, ParkingSlot, VehiclePlate, ReservationDate, Status, CreatedAt) VALUES (@customerid, @slot, @plate, @resdate, 'Reserved', @createdat)", conn)
+                                                                  insCmd.Parameters.AddWithValue("@customerid", customerID)
+                                                                  insCmd.Parameters.AddWithValue("@slot", slotName)
+                                                                  insCmd.Parameters.AddWithValue("@plate", resPlate)
+                                                                  insCmd.Parameters.AddWithValue("@resdate", resDate)
+                                                                  insCmd.Parameters.AddWithValue("@createdat", DateTime.Now)
+                                                                  insCmd.ExecuteNonQuery()
+                                                              End If
+                                                          End Using
+
+                                                          If resDate.Date = DateTime.Now.Date Then
+                                                              ParkingData.parkingDatabase(slotName) = False
+                                                          End If
+                                                      Catch ex As LocalDbException
+                                                          MessageBox.Show("Hindi na-save ang reservation: " & ex.Message, "Reservation Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                                          Return
+                                                      End Try
+
+                                                      UpdateSlots()
+                                                      SuccessDialogForm.ShowSuccess("Reservation successfully created for slot " & slotName)
+                                                  End If
+                                              End If
+                                          End Sub
+
+                AddHandler lblName.Click, Sub() pnlSlot_ClickProxy(pnlSlot)
+                AddHandler lblStatus.Click, Sub() pnlSlot_ClickProxy(pnlSlot)
+                If lblReserver IsNot Nothing Then
+                    AddHandler lblReserver.Click, Sub() pnlSlot_ClickProxy(pnlSlot)
+                End If
+            ElseIf isReserved Then
+                pnlSlot.Cursor = Cursors.Hand
+                AddHandler pnlSlot.Click, Sub()
+                                              Dim manageDlg As New ManageReservationDialogForm(slotName, plateText, reservedBy)
+                                              If OverlayHelper.ShowDialog(Me, manageDlg) = DialogResult.OK Then
+                                                  If manageDlg.SelectedAction = "Cancel" Then
+                                                      Dim confirmDlg As New ConfirmActionDialogForm("Cancel Reservation", $"Are you sure you want to cancel the reservation for slot {slotName}?", "YES")
+                                                      If OverlayHelper.ShowDialog(Me, confirmDlg) = DialogResult.Yes Then
+                                                          Dim canceledCode As String = ""
+                                                          Try
+                                                              Using conn As LocalDbConnection = GetConnection()
+                                                                  If conn IsNot Nothing Then
+                                                                      Dim updCmd As New LocalDbCommand("UPDATE tblreservation SET Status = 'Cancelled' WHERE ParkingSlot = @slot AND VehiclePlate = @plate AND Status = 'Reserved'", conn)
+                                                                      updCmd.Parameters.AddWithValue("@slot", slotName)
+                                                                      updCmd.Parameters.AddWithValue("@plate", plateText)
+                                                                      updCmd.ExecuteNonQuery()
+                                                                  End If
+                                                              End Using
+
+                                                              If ParkingData.parkingDatabase.ContainsKey(slotName) Then
+                                                                  ParkingData.parkingDatabase(slotName) = True
+                                                              End If
+                                                          Catch ex As LocalDbException
+                                                              MessageBox.Show("Warning: Hindi na-cancel sa reservation table. " & ex.Message, "Reservation Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                                          End Try
+
+                                                          UpdateSlots()
+                                                      End If
+                                                  ElseIf manageDlg.SelectedAction = "CheckIn" Then
+                                                      Dim checkInTime As DateTime = DateTime.Now
+                                                      Try
+                                                          Using conn As LocalDbConnection = GetConnection()
+                                                              If conn IsNot Nothing Then
+                                                                  Dim customerID As Object = DBNull.Value
+                                                                  Dim tellerID As Object = DBNull.Value
+                                                                  If Form1.CurrentUserRole = "Customer" Then
+                                                                      customerID = GetCurrentUserID("Customer", Form1.CurrentUsername)
+                                                                  ElseIf Form1.CurrentUserRole = "Teller" Then
+                                                                      tellerID = GetCurrentUserID("Teller", Form1.CurrentUsername)
+                                                                  End If
+
+                                                                  Dim updRes As New LocalDbCommand("UPDATE tblreservation SET Status = 'Checked In' WHERE ParkingSlot = @slot AND VehiclePlate = @plate AND Status = 'Reserved'", conn)
+                                                                  updRes.Parameters.AddWithValue("@slot", slotName)
+                                                                  updRes.Parameters.AddWithValue("@plate", plateText)
+                                                                  updRes.ExecuteNonQuery()
+
+                                                                  Dim newCode As String = ParkingData.GenerateCode()
+                                                                  Dim isCar As Boolean = (slotName.StartsWith("G") OrElse slotName.StartsWith("U")) AndAlso Convert.ToInt32(slotName.Substring(1)) <= 25
+                                                                  Dim vTypeVal As String = If(isCar, "Four Wheels", "Two Wheels")
+                                                                  Dim rateVal As Double = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
+
+                                                                  Dim insParking As New LocalDbCommand("INSERT INTO tblparkingrecord (code, PlateNumber, VehicleType, `Parking Slot`, RateName, Rate, Duration, `Paid Status`, CheckIn, CustomerID, TellerID) VALUES (@code, @plate, @vtype, @slot, 'Standard', @rate, '0 hour(s)', 'Not Paid', @checkin, @custid, @tellid)", conn)
+                                                                  insParking.Parameters.AddWithValue("@code", newCode)
+                                                                  insParking.Parameters.AddWithValue("@plate", plateText)
+                                                                  insParking.Parameters.AddWithValue("@vtype", vTypeVal)
+                                                                  insParking.Parameters.AddWithValue("@slot", slotName)
+                                                                  insParking.Parameters.AddWithValue("@rate", rateVal)
+                                                                  insParking.Parameters.AddWithValue("@checkin", checkInTime)
+                                                                  insParking.Parameters.AddWithValue("@custid", customerID)
+                                                                  insParking.Parameters.AddWithValue("@tellid", tellerID)
+                                                                  insParking.ExecuteNonQuery()
+                                                              End If
+                                                          End Using
+
+                                                          If ParkingData.parkingDatabase.ContainsKey(slotName) Then
+                                                              ParkingData.parkingDatabase(slotName) = False
+                                                          End If
+
+                                                          LoadDataFromDatabase()
+                                                      Catch ex As LocalDbException
+                                                          MessageBox.Show("Warning: Hindi na-check in ang reservation. " & ex.Message, "Reservation Database Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                                      End Try
+                                                      UpdateSlots()
+                                                      SuccessDialogForm.ShowSuccess($"Vehicle {plateText} successfully checked in at slot {slotName}!")
+                                                  End If
+                                              End If
+                                          End Sub
+
+                AddHandler lblName.Click, Sub() pnlSlot_ClickProxy(pnlSlot)
+                AddHandler lblStatus.Click, Sub() pnlSlot_ClickProxy(pnlSlot)
+                If lblReserver IsNot Nothing Then
+                    AddHandler lblReserver.Click, Sub() pnlSlot_ClickProxy(pnlSlot)
+                End If
+                If lblDate IsNot Nothing Then
+                    AddHandler lblDate.Click, Sub() pnlSlot_ClickProxy(pnlSlot)
+                End If
+            End If
+
+            Dim slotNum As Integer = 0
+            Dim numPart As String = slotName.Substring(1)
+            Integer.TryParse(numPart, slotNum)
+
+            If slotNum <= 25 Then
+                flpCarSlots.Controls.Add(pnlSlot)
+            Else
+                flpMotorSlots.Controls.Add(pnlSlot)
+            End If
+        Next
+
+        flpCarSlots.ResumeLayout(True)
+        flpMotorSlots.ResumeLayout(True)
+    End Sub
+
+    Private Sub btnManage_Click(sender As Object, e As EventArgs) Handles btnManage.Click
+        ParkingManagerForm.Show()
+        Me.Hide()
+    End Sub
+
+    Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
+        Dim exitDlg As New ConfirmExitDialog()
+        If OverlayHelper.ShowDialog(Me, exitDlg) = DialogResult.Yes Then
+            Form1.Show()
+            Me.Close()
+        End If
+    End Sub
+
+    Private Sub DashBoardForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+        If e.CloseReason = CloseReason.UserClosing Then
+            Form1.Show()
+        End If
+    End Sub
+
+    Private Sub pnlSlot_ClickProxy(pnl As Panel)
+        Dim method As System.Reflection.MethodInfo = GetType(Control).GetMethod("OnClick", System.Reflection.BindingFlags.NonPublic Or System.Reflection.BindingFlags.Instance)
+        If method IsNot Nothing Then
+            method.Invoke(pnl, New Object() {EventArgs.Empty})
+        End If
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        Dim addTellerForm As New frmaddteller()
+        If OverlayHelper.ShowDialog(Me, addTellerForm) = DialogResult.OK Then
+            LoadUsersFromMySql()
+        End If
+    End Sub
+
+    Private Sub btnClearAccounts_Click(sender As Object, e As EventArgs) Handles btnClearAccounts.Click
+        Dim confirmDlg As New ConfirmActionDialogForm("Clear Accounts", "Are you sure you want to delete all non-admin accounts?", "YES")
+        If OverlayHelper.ShowDialog(Me, confirmDlg) = DialogResult.Yes Then
+            Try
+                Using conn As LocalDbConnection = GetConnection()
+                    Dim c1 As New LocalDbCommand("DELETE FROM tblcustomer", conn)
+                    c1.ExecuteNonQuery()
+                    Dim c2 As New LocalDbCommand("DELETE FROM tblteller", conn)
+                    c2.ExecuteNonQuery()
+                End Using
+                LoadUsersFromMySql()
+            Catch ex As LocalDbException
+                MessageBox.Show("Unable to clear accounts: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End Try
+        End If
+    End Sub
+
+    Private Sub pnlHeader_Paint(sender As Object, e As PaintEventArgs) Handles pnlHeader.Paint
+
+    End Sub
+End Class

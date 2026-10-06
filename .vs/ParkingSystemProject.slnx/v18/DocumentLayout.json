@@ -1,0 +1,288 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|c:\\users\\acer\\downloads\\parkingsystemproject\\dashboardform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:dashboardform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmadmindashboard.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:frmadmindashboard.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmadmindashboard.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:frmadmindashboard.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\dashboardform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:dashboardform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\localdbcompat.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:localdbcompat.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmaddteller.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:frmaddteller.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\form1.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:form1.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\form1.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:form1.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|c:\\users\\acer\\downloads\\parkingsystemproject\\successdialogform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:successdialogform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|c:\\users\\acer\\downloads\\parkingsystemproject\\successdialogform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:successdialogform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\parkingmanagerform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:parkingmanagerform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\parkingmanagerform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:parkingmanagerform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\dbconnect.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:dbconnect.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmaddteller.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:frmaddteller.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\registerform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:registerform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|C:\\Users\\acer\\Downloads\\ParkingSystemProject\\registerform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{A4F22EA6-66A8-4A17-8F7B-DFE685ECFA70}|ParkingSystemProject.vbproj|solutionrelative:registerform.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "frmadmindashboard.vb [Design]",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmadmindashboard.vb",
+              "RelativeDocumentMoniker": "frmadmindashboard.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmadmindashboard.vb [Design]",
+              "RelativeToolTip": "frmadmindashboard.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:29:15.372Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "LocalDbCompat.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\LocalDbCompat.vb",
+              "RelativeDocumentMoniker": "LocalDbCompat.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\LocalDbCompat.vb",
+              "RelativeToolTip": "LocalDbCompat.vb",
+              "ViewState": "AgIAAOgAAAAAAAAAAAAmwP0AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:35:18.268Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DashBoardForm.vb [Design]",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\DashBoardForm.vb",
+              "RelativeDocumentMoniker": "DashBoardForm.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\DashBoardForm.vb [Design]",
+              "RelativeToolTip": "DashBoardForm.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T18:40:53.503Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DashBoardForm.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\DashBoardForm.vb",
+              "RelativeDocumentMoniker": "DashBoardForm.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\DashBoardForm.vb",
+              "RelativeToolTip": "DashBoardForm.vb",
+              "ViewState": "AgIAABAEAAAAAAAAAAAcwDkEAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T18:40:57.17Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "frmadmindashboard.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmadmindashboard.vb",
+              "RelativeDocumentMoniker": "frmadmindashboard.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmadmindashboard.vb",
+              "RelativeToolTip": "frmadmindashboard.vb",
+              "ViewState": "AgIAAE0LAAAAAAAAAAAqwGQLAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:29:26.028Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "frmaddteller.vb [Design]",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmaddteller.vb",
+              "RelativeDocumentMoniker": "frmaddteller.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmaddteller.vb [Design]",
+              "RelativeToolTip": "frmaddteller.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:25:44.613Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Form1.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\Form1.vb",
+              "RelativeDocumentMoniker": "Form1.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\Form1.vb",
+              "RelativeToolTip": "Form1.vb",
+              "ViewState": "AgIAAKEBAAAAAAAAAAAmwBQCAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:11:06.243Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Form1.vb [Design]",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\Form1.vb",
+              "RelativeDocumentMoniker": "Form1.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\Form1.vb [Design]",
+              "RelativeToolTip": "Form1.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:11:00.804Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ParkingManagerForm.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\ParkingManagerForm.vb",
+              "RelativeDocumentMoniker": "ParkingManagerForm.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\ParkingManagerForm.vb",
+              "RelativeToolTip": "ParkingManagerForm.vb",
+              "ViewState": "AgIAAAkCAAAAAAAAAAAmwBICAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T18:40:11.198Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "SuccessDialogForm.vb [Design]",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\SuccessDialogForm.vb",
+              "RelativeDocumentMoniker": "SuccessDialogForm.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\SuccessDialogForm.vb [Design]",
+              "RelativeToolTip": "SuccessDialogForm.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-06T02:51:17.707Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "SuccessDialogForm.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\SuccessDialogForm.vb",
+              "RelativeDocumentMoniker": "SuccessDialogForm.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\SuccessDialogForm.vb",
+              "RelativeToolTip": "SuccessDialogForm.vb",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-06T02:51:24.664Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ParkingManagerForm.vb [Design]",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\ParkingManagerForm.vb",
+              "RelativeDocumentMoniker": "ParkingManagerForm.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\ParkingManagerForm.vb [Design]",
+              "RelativeToolTip": "ParkingManagerForm.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T18:40:08.929Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "frmaddteller.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmaddteller.vb",
+              "RelativeDocumentMoniker": "frmaddteller.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\frmaddteller.vb",
+              "RelativeToolTip": "frmaddteller.vb",
+              "ViewState": "AgIAAAMBAAAAAAAAAAAowBgBAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:25:52.358Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "dbConnect.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\dbConnect.vb",
+              "RelativeDocumentMoniker": "dbConnect.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\dbConnect.vb",
+              "RelativeToolTip": "dbConnect.vb",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:34:34.761Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "RegisterForm.vb [Design]",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\RegisterForm.vb",
+              "RelativeDocumentMoniker": "RegisterForm.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\RegisterForm.vb [Design]",
+              "RelativeToolTip": "RegisterForm.vb [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:32:56.401Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "RegisterForm.vb",
+              "DocumentMoniker": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\RegisterForm.vb",
+              "RelativeDocumentMoniker": "RegisterForm.vb",
+              "ToolTip": "C:\\Users\\acer\\Downloads\\ParkingSystemProject\\RegisterForm.vb",
+              "RelativeToolTip": "RegisterForm.vb",
+              "ViewState": "AgIAAI4BAAAAAAAAAAAQwJgBAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-10-05T17:32:59.16Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

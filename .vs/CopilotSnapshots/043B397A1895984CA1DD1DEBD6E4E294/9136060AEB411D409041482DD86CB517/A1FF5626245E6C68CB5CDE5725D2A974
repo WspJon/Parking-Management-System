@@ -1,0 +1,39 @@
+﻿Imports System.Windows.Forms
+Imports System.Drawing
+
+Public Class Form1
+    Private Sub btnLogin_Click(sender As Object, e As EventArgs) Handles btnLogin.Click
+        If txtUsername.Text = "admin" AndAlso txtPassword.Text = "1234" Then
+            MessageBox.Show("Welcome to the Parking System!", "Login Success")
+            MainMenuForm.Show()
+            Me.Hide() ' Hide Login form when Main Menu displays
+        Else
+            MessageBox.Show("Invalid Username or Password. Please try again.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
+    End Sub
+
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Enable window dragging on the header panel
+        ThemeManager.EnableDrag(Panel1, Me)
+
+        ' Apply flat styles and rounded corners
+        ThemeManager.StyleButton(btnLogin, ThemeManager.TealAccent)
+        ThemeManager.MakeRoundedControl(btnLogin, 6)
+        ThemeManager.MakeRoundedControl(btnClose, 6)
+
+        ' Style close button and hover animation
+        ThemeManager.StyleButton(btnClose, Color.Transparent)
+        AddHandler btnClose.MouseEnter, Sub() btnClose.BackColor = ThemeManager.RedExit
+        AddHandler btnClose.MouseLeave, Sub() btnClose.BackColor = Color.Transparent
+        
+        ' Bind close button click
+        AddHandler btnClose.Click, Sub() Me.Close()
+    End Sub
+
+    Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+        ' If closed via the "X" button, return to the main gate lobby
+        If e.CloseReason = CloseReason.UserClosing Then
+            menufrm.Show()
+        End If
+    End Sub
+End Class

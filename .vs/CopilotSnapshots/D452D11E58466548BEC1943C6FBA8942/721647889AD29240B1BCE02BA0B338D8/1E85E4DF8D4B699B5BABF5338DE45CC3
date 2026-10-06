@@ -1,0 +1,285 @@
+﻿Imports System.Windows.Forms
+Imports System.Drawing
+Imports System.Data
+
+Public Class ParkingManagerForm
+    Dim foundRow As DataRow = Nothing
+    Dim currentFee As Double = 0.0 ' Keeps track of the active fee across the form
+
+    ' -- INITIALIZE THE SLOTS WHEN FORM OPENS --
+    Private Sub ParkingManagerForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ParkingData.InitializeDatabase()
+
+        ' Enable window dragging on the header panel
+        ThemeManager.EnableDrag(pnlHeader, Me)
+
+        ' Apply rounded corners programmatically
+        ThemeManager.MakeRoundedControl(pnlCardCheckIn, 10)
+        ThemeManager.MakeRoundedControl(pnlCardCheckOut, 10)
+        ThemeManager.MakeRoundedControl(btnPark, 6)
+        ThemeManager.MakeRoundedControl(btnSearch, 6)
+        ThemeManager.MakeRoundedControl(btnProcessPayment, 6)
+        ThemeManager.MakeRoundedControl(btnExit, 6)
+
+        ' Apply card styling outline borders
+        ThemeManager.StyleCardPanel(pnlCardCheckIn, ThemeManager.TealAccent)
+        ThemeManager.StyleCardPanel(pnlCardCheckOut, ThemeManager.TealAccent)
+
+        ' Style flat buttons
+        ThemeManager.StyleButton(btnPark, ThemeManager.TealAccent)
+        ThemeManager.StyleButton(btnSearch, ThemeManager.TealAccent)
+        ThemeManager.StyleButton(btnProcessPayment, ThemeManager.TealAccent)
+        ThemeManager.StyleButton(btnExit, ThemeManager.RedExit)
+    End Sub
+
+    ' -- THIS HAPPENS THE MOMENT THEY CLICK THE COMBOBOX ARROW --
+    Private Sub cboSearchPlate_DropDown(sender As Object, e As EventArgs) Handles cboSearchPlate.DropDown
+        RefreshParkedPlates()
+    End Sub
+
+    ' -- DYNAMICALLY LOAD PARKED PLATES INTO THE COMBOBOX --
+    Public Sub RefreshParkedPlates()
+        cboSearchPlate.Items.Clear()
+
+        If ParkingData.ParkingTable IsNot Nothing Then
+            For Each row As DataRow In ParkingData.ParkingTable.Rows
+                ' Only show vehicles that are currently parked
+                If row("Status").ToString() = "Parked" Then
+                    cboSearchPlate.Items.Add(row("PlateNumber").ToString())
+                End If
+            Next
+        End If
+    End Sub
+
+    ' -- DYNAMICALLY CHANGE SLOTS BASED ON VEHICLE TYPE --
+    Private Sub cmbType_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbType.SelectedIndexChanged
+        ' 1. Clear whatever slots were previously in the dropdown
+        cboParkingSlots.Items.Clear()
+
+        ' 2. Reset the status label in case they are switching vehicle types
+        lblSlotStatus.Text = "Status: -"
+        lblSlotStatus.ForeColor = Color.Black
+
+        ' 3. Populate the dropdown with the correct slots
+        If cmbType.Text = "Car" Then
+            ' Load Car slots (G1-G25, U1-U25)
+            For i As Integer = 1 To 25
+                cboParkingSlots.Items.Add($"G{i}")
+                cboParkingSlots.Items.Add($"U{i}")
+            Next
+        ElseIf cmbType.Text = "Motorcycle" Then
+            ' Load Motorcycle slots (G26-G35, U26-U35)
+            For i As Integer = 26 To 35
+                cboParkingSlots.Items.Add($"G{i}")
+                cboParkingSlots.Items.Add($"U{i}")
+            Next
+        End If
+    End Sub
+
+    ' -- LIVE SLOT STATUS COLOR --
+    Private Sub cboParkingSlots_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboParkingSlots.SelectedIndexChanged
+        If cboParkingSlots.SelectedItem Is Nothing Then Return
+
+        Dim selectedSlot As String = cboParkingSlots.SelectedItem.ToString()
+        Dim isAvailable As Boolean = ParkingData.parkingDatabase(selectedSlot)
+
+        If isAvailable Then
+            lblSlotStatus.Text = "AVAILABLE"
+            lblSlotStatus.ForeColor = ThemeManager.GreenSuccess
+        Else
+            lblSlotStatus.Text = "UNAVAILABLE"
+            lblSlotStatus.ForeColor = ThemeManager.RedExit
+        End If
+    End Sub
+
+    ' Automatically refresh the dashboard screen when this manager window closes
+    Private Sub ParkingManagerForm_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
+        DashBoardForm.ShowLobbyMode = False
+        DashBoardForm.UpdateSlots()
+        DashBoardForm.Show()
+    End Sub
+
+    ' -- CHECK IN A CAR --
+    Private Sub btnPark_Click(sender As Object, e As EventArgs) Handles btnPark.Click
+        ParkingData.InitializeDatabase()
+
+        ' 1. Check if all fields are filled
+        If txtPlateNumber.Text = "" Or cmbType.Text = "" Or cboParkingSlots.SelectedItem Is Nothing Then
+            MessageBox.Show("Please fill out all fields and select a slot.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        ' 2. Enforce the 7-character limit!
+        If txtPlateNumber.Text.Length <> 7 Then
+            MessageBox.Show("Plate number must be exactly 7 characters!", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        ' 3. Check if the chosen slot is already taken
+        Dim selectedSlot As String = cboParkingSlots.SelectedItem.ToString()
+        If ParkingData.parkingDatabase(selectedSlot) = False Then
+            MessageBox.Show("This slot is already occupied! Please choose another.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        ' 4. Mark slot as taken in the system
+        ParkingData.parkingDatabase(selectedSlot) = False
+        lblSlotStatus.Text = "UNAVAILABLE"
+        lblSlotStatus.ForeColor = ThemeManager.RedExit
+
+        ' 5. Add to the database AND save the exact slot number!
+        Dim newRow As DataRow = ParkingData.ParkingTable.NewRow()
+        newRow("PlateNumber") = txtPlateNumber.Text.ToUpper()
+        newRow("VehicleType") = cmbType.Text
+        newRow("TimeIn") = DateTime.Now
+        newRow("TimeOut") = DBNull.Value
+        newRow("Fee") = 0.0
+        newRow("Status") = "Parked"
+        newRow("Slot") = selectedSlot ' This saves the exact slot to memory!
+
+        ParkingData.ParkingTable.Rows.Add(newRow)
+
+        DashBoardForm.UpdateSlots()
+
+        MessageBox.Show($"Vehicle Parked Successfully in slot {selectedSlot}!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+        ' Clear the form for the next car
+        txtPlateNumber.Clear()
+        cmbType.SelectedIndex = -1
+        cboParkingSlots.SelectedIndex = -1
+        lblSlotStatus.Text = "Status: -"
+        lblSlotStatus.ForeColor = Color.Black
+    End Sub
+
+    ' -- SEARCH FOR A CAR --
+    Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
+        ' Check if they selected a plate from the dropdown
+        If cboSearchPlate.SelectedItem Is Nothing Then
+            MessageBox.Show("Please select a plate number from the dropdown first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        foundRow = Nothing
+        Dim searchPlate As String = cboSearchPlate.SelectedItem.ToString()
+
+        For Each row As DataRow In ParkingData.ParkingTable.Rows
+            If row("PlateNumber").ToString() = searchPlate AndAlso row("Status").ToString() = "Parked" Then
+                foundRow = row
+                Exit For
+            End If
+        Next
+
+        If foundRow IsNot Nothing Then
+            cmbDiscount.Text = "None"
+            txtAmountPaid.Clear()
+            lblChange.Text = "Change: ₱0.00"
+            CalculateAndDisplayFee()
+        Else
+            MessageBox.Show("Vehicle not found or already checked out.", "No Record", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            lblFee.Text = "Total Fee: ₱0.00"
+            currentFee = 0.0
+        End If
+    End Sub
+
+    ' -- CALCULATES THE FEE WITH DISCOUNTS --
+    Private Sub CalculateAndDisplayFee()
+        If foundRow IsNot Nothing Then
+            Dim timeIn As DateTime = Convert.ToDateTime(foundRow("TimeIn"))
+            Dim hours As Double = Math.Ceiling((DateTime.Now - timeIn).TotalHours)
+
+            If hours < 1 Then hours = 1
+
+            Dim rate As Double = If(foundRow("VehicleType").ToString() = "Car", 50.0, 30.0)
+            Dim baseFee As Double = hours * rate
+
+            ' Apply discounts
+            If cmbDiscount.Text = "PWD" Then
+                currentFee = 0.0
+            ElseIf cmbDiscount.Text = "Senior Citizen" Then
+                currentFee = baseFee * 0.8 ' 20% off small fee
+            Else
+                currentFee = baseFee
+            End If
+
+            lblFee.Text = "Total Fee: ₱" & currentFee.ToString("F2")
+        End If
+    End Sub
+
+    Private Sub cmbDiscount_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbDiscount.SelectedIndexChanged
+        CalculateAndDisplayFee()
+    End Sub
+
+    ' -- CHECKOUT AND RECEIPT --
+    Private Sub btnProcessPayment_Click(sender As Object, e As EventArgs) Handles btnProcessPayment.Click
+        If foundRow Is Nothing Then
+            MessageBox.Show("Please search for a parked vehicle first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        Dim cashPaid As Double = 0.0
+
+        If Not Double.TryParse(txtAmountPaid.Text, cashPaid) OrElse cashPaid < 0 Then
+            MessageBox.Show("Please enter a valid numeric payment amount.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Exit Sub
+        End If
+
+        If cashPaid < currentFee Then
+            Dim shortage As Double = currentFee - cashPaid
+            MessageBox.Show("Insufficient payment! The customer still owes ₱" & shortage.ToString("F2"), "Payment Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End If
+
+        Dim calculatedChange As Double = cashPaid - currentFee
+        lblChange.Text = "Change: ₱" & calculatedChange.ToString("F2")
+
+        Dim timeIn As DateTime = Convert.ToDateTime(foundRow("TimeIn"))
+        Dim timeOut As DateTime = DateTime.Now
+        Dim hours As Double = Math.Ceiling((timeOut - timeIn).TotalHours)
+        If hours < 1 Then hours = 1
+
+        foundRow("TimeOut") = timeOut
+        foundRow("Fee") = currentFee
+        foundRow("Status") = "Departed"
+
+        DashBoardForm.UpdateSlots()
+
+        ' 1. Grab the slot from the database
+        Dim freedSlot As String = foundRow("Slot").ToString()
+
+        ' 2. Mark it as Available again!
+        If ParkingData.parkingDatabase.ContainsKey(freedSlot) Then
+            ParkingData.parkingDatabase(freedSlot) = True
+        End If
+
+        ' Pass data to receipt form
+        Dim receiptForm As New ReceiptForm()
+        receiptForm.PlateNumber = foundRow("PlateNumber").ToString()
+        receiptForm.VehicleType = foundRow("VehicleType").ToString()
+        receiptForm.TimeIn = timeIn.ToString("yyyy-MM-dd hh:mm tt")
+        receiptForm.TimeOut = timeOut.ToString("yyyy-MM-dd hh:mm tt")
+        receiptForm.Duration = hours & " hour(s)"
+        receiptForm.DiscountType = cmbDiscount.Text
+        receiptForm.TotalAmount = "₱" & currentFee.ToString("F2")
+        receiptForm.CashRendered = "₱" & cashPaid.ToString("F2")
+        receiptForm.ChangeIssued = "₱" & calculatedChange.ToString("F2")
+        receiptForm.ShowDialog()
+
+        ' Clear checkout screen and reset the ComboBox
+        cboSearchPlate.Items.Clear()
+        cboSearchPlate.SelectedIndex = -1
+        cboSearchPlate.Text = ""
+        txtAmountPaid.Clear()
+        lblFee.Text = "Total Fee: ₱0.00"
+        cmbDiscount.Text = "None"
+        foundRow = Nothing
+        currentFee = 0.0
+    End Sub
+
+    Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
+        DashBoardForm.Show()
+        Me.Close()
+    End Sub
+
+    Private Sub TabPage1_Click(sender As Object, e As EventArgs) Handles TabPage1.Click
+    End Sub
+End Class

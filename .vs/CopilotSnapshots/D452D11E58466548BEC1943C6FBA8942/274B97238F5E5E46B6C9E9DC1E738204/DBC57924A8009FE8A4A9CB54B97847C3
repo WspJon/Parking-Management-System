@@ -1,0 +1,85 @@
+﻿Imports System.Windows.Forms
+Imports System.Drawing
+
+Public Class MainMenuForm
+    Private Sub MainMenuForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        ThemeManager.EnableDrag(pnlHeader, Me)
+
+
+        ThemeManager.MakeRoundedControl(btnLogout, 6)
+        ThemeManager.MakeRoundedControl(btnGoToDashboard, 8)
+        ThemeManager.MakeRoundedControl(pnlRatesCard, 10)
+
+
+        ThemeManager.StyleCardPanel(pnlRatesCard, ThemeManager.TealAccent)
+
+
+        AddHandler btnLogout.Click, Sub() PerformLogout()
+    End Sub
+
+    Private Sub Label2_Click(sender As Object, e As EventArgs) Handles Label2.Click
+    End Sub
+
+    Private Sub rdoMotorcyle_CheckedChanged(sender As Object, e As EventArgs) Handles rdoMotorcycle.CheckedChanged
+        If rdoMotorcycle.Checked Then
+            lblRate.Text = "Rate: ₱ 30.00"
+        End If
+    End Sub
+
+    Private Sub rdoCar_CheckedChanged(sender As Object, e As EventArgs) Handles rdoCar.CheckedChanged
+        If rdoCar.Checked Then
+            lblRate.Text = "Rate: ₱ 50.00"
+        End If
+    End Sub
+
+    Private Sub btnGoToDashboard_Click(sender As Object, e As EventArgs) Handles btnGoToDashboard.Click
+        DashBoardForm.Show()
+        Me.Hide()
+    End Sub
+
+    Private Sub PerformLogout()
+        Dim response As DialogResult = MessageBox.Show("Are you sure you want to logout?",
+                                                       "Confirm Exit",
+                                                       MessageBoxButtons.YesNo,
+                                                       MessageBoxIcon.Question)
+
+        If response = DialogResult.Yes Then
+            Form1.txtUsername.Clear()
+            Form1.txtPassword.Clear()
+
+            If ParkingData.ParkingTable IsNot Nothing Then
+                ParkingData.ParkingTable.Rows.Clear()
+            End If
+
+            ParkingData.OccupiedSlots = 0
+            Form1.Show()
+
+            ParkingManagerForm.Close()
+            Me.Close()
+        End If
+    End Sub
+
+    Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
+        PerformLogout()
+    End Sub
+
+    Private Sub MainMenuForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+
+        If e.CloseReason = CloseReason.UserClosing Then
+            Form1.txtUsername.Clear()
+            Form1.txtPassword.Clear()
+
+            If ParkingData.ParkingTable IsNot Nothing Then
+                ParkingData.ParkingTable.Rows.Clear()
+            End If
+
+            ParkingData.OccupiedSlots = 0
+            menufrm.Show()
+        End If
+    End Sub
+
+    Private Sub btnLogout_Click(sender As Object, e As EventArgs) Handles btnLogout.Click
+
+    End Sub
+End Class

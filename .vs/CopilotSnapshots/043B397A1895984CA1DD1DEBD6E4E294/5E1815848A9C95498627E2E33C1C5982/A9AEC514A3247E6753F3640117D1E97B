@@ -1,0 +1,562 @@
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+Partial Class DashBoardForm
+    Inherits System.Windows.Forms.Form
+
+    'Form overrides dispose to clean up the component list.
+    <System.Diagnostics.DebuggerNonUserCode()> _
+    Protected Overrides Sub Dispose(ByVal disposing As Boolean)
+        Try
+            If disposing AndAlso components IsNot Nothing Then
+                components.Dispose()
+            End If
+        Finally
+            MyBase.Dispose(disposing)
+        End Try
+    End Sub
+
+    'Required by the Windows Form Designer
+    Private components As System.ComponentModel.IContainer
+
+    'NOTE: The following procedure is required by the Windows Form Designer
+    'It can be modified using the Windows Form Designer.  
+    'Do not modify it using the code editor.
+    <System.Diagnostics.DebuggerStepThrough()> _
+    Private Sub InitializeComponent()
+        Dim DataGridViewCellStyle1 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle2 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Dim DataGridViewCellStyle3 As System.Windows.Forms.DataGridViewCellStyle = New System.Windows.Forms.DataGridViewCellStyle()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.lblAvailableCars = New System.Windows.Forms.Label()
+        Me.lblOccupiedCars = New System.Windows.Forms.Label()
+        Me.btnManage = New System.Windows.Forms.Button()
+        Me.StatusStrip1 = New System.Windows.Forms.StatusStrip()
+        Me.lblStatusUser = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.dgvVehicles = New System.Windows.Forms.DataGridView()
+        Me.btnExit = New System.Windows.Forms.Button()
+        Me.lblAvailableMotors = New System.Windows.Forms.Label()
+        Me.lblOccupiedMotors = New System.Windows.Forms.Label()
+        Me.lblTotalSales = New System.Windows.Forms.Label()
+        Me.lblCarRate = New System.Windows.Forms.Label()
+        Me.lblMotorRate = New System.Windows.Forms.Label()
+        
+        ' Programmatic redesigned controls
+        Me.pnlHeader = New System.Windows.Forms.Panel()
+        Me.pnlSidebar = New System.Windows.Forms.Panel()
+        Me.lblSidebarTitle = New System.Windows.Forms.Label()
+        Me.pnlStatsCars = New System.Windows.Forms.Panel()
+        Me.lblStatsCarsHeader = New System.Windows.Forms.Label()
+        Me.pnlStatsMotors = New System.Windows.Forms.Panel()
+        Me.lblStatsMotorsHeader = New System.Windows.Forms.Label()
+        Me.pnlStatsSales = New System.Windows.Forms.Panel()
+        Me.lblStatsSalesHeader = New System.Windows.Forms.Label()
+        Me.pnlWorkspace = New System.Windows.Forms.Panel()
+        Me.pnlTabBar = New System.Windows.Forms.Panel()
+        Me.btnTabMap = New System.Windows.Forms.Button()
+        Me.btnTabTable = New System.Windows.Forms.Button()
+        Me.pnlViewContainer = New System.Windows.Forms.Panel()
+        Me.pnlMapView = New System.Windows.Forms.Panel()
+        Me.pnlTableView = New System.Windows.Forms.Panel()
+        Me.lblCarZoneTitle = New System.Windows.Forms.Label()
+        Me.flpCarSlots = New System.Windows.Forms.FlowLayoutPanel()
+        Me.lblMotorZoneTitle = New System.Windows.Forms.Label()
+        Me.flpMotorSlots = New System.Windows.Forms.FlowLayoutPanel()
+        
+        ' Hidden compatibility containers from old designer
+        Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
+        Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.Panel2 = New System.Windows.Forms.Panel()
+        Me.Panel3 = New System.Windows.Forms.Panel()
+        Me.Panel4 = New System.Windows.Forms.Panel()
+        
+        Me.StatusStrip1.SuspendLayout()
+        CType(Me.dgvVehicles, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.pnlHeader.SuspendLayout()
+        Me.pnlSidebar.SuspendLayout()
+        Me.pnlStatsCars.SuspendLayout()
+        Me.pnlStatsMotors.SuspendLayout()
+        Me.pnlStatsSales.SuspendLayout()
+        '
+        'lblCarRate
+        '
+        Me.lblCarRate.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblCarRate.ForeColor = System.Drawing.Color.FromArgb(CType(CType(60, Byte), Integer), CType(CType(60, Byte), Integer), CType(CType(60, Byte), Integer))
+        Me.lblCarRate.Location = New System.Drawing.Point(15, 72)
+        Me.lblCarRate.Name = "lblCarRate"
+        Me.lblCarRate.Size = New System.Drawing.Size(220, 18)
+        Me.lblCarRate.TabIndex = 2
+        Me.lblCarRate.Text = "Car: ₱0.00 / hr"
+
+        '
+        'lblMotorRate
+        '
+        Me.lblMotorRate.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.lblMotorRate.ForeColor = System.Drawing.Color.FromArgb(CType(CType(60, Byte), Integer), CType(CType(60, Byte), Integer), CType(CType(60, Byte), Integer))
+        Me.lblMotorRate.Location = New System.Drawing.Point(15, 94)
+        Me.lblMotorRate.Name = "lblMotorRate"
+        Me.lblMotorRate.Size = New System.Drawing.Size(220, 18)
+        Me.lblMotorRate.TabIndex = 3
+        Me.lblMotorRate.Text = "Motorcycle: ₱0.00 / hr"
+        Me.pnlWorkspace.SuspendLayout()
+        Me.pnlTabBar.SuspendLayout()
+        Me.pnlViewContainer.SuspendLayout()
+        Me.pnlMapView.SuspendLayout()
+        Me.pnlTableView.SuspendLayout()
+        Me.SuspendLayout()
+        '
+        'Label1
+        '
+        Me.Label1.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
+        Me.Label1.ForeColor = System.Drawing.Color.White
+        Me.Label1.Location = New System.Drawing.Point(20, 15)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(400, 30)
+        Me.Label1.TabIndex = 0
+        Me.Label1.Text = "JJRSP PARKING SYSTEM - DASHBOARD"
+        Me.Label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'btnExit
+        '
+        Me.btnExit.BackColor = System.Drawing.Color.FromArgb(CType(CType(194, Byte), Integer), CType(CType(59, Byte), Integer), CType(CType(59, Byte), Integer))
+        Me.btnExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnExit.FlatAppearance.BorderSize = 0
+        Me.btnExit.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.btnExit.ForeColor = System.Drawing.Color.White
+        Me.btnExit.Location = New System.Drawing.Point(880, 14)
+        Me.btnExit.Name = "btnExit"
+        Me.btnExit.Size = New System.Drawing.Size(80, 32)
+        Me.btnExit.TabIndex = 1
+        Me.btnExit.Text = "Back"
+        Me.btnExit.UseVisualStyleBackColor = False
+        '
+        'pnlHeader
+        '
+        Me.pnlHeader.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        Me.pnlHeader.Controls.Add(Me.Label1)
+        Me.pnlHeader.Controls.Add(Me.btnExit)
+        Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
+        Me.pnlHeader.Location = New System.Drawing.Point(0, 0)
+        Me.pnlHeader.Name = "pnlHeader"
+        Me.pnlHeader.Size = New System.Drawing.Size(980, 60)
+        Me.pnlHeader.TabIndex = 0
+        '
+        'pnlSidebar
+        '
+        Me.pnlSidebar.BackColor = System.Drawing.Color.FromArgb(CType(CType(245, Byte), Integer), CType(CType(247, Byte), Integer), CType(CType(250, Byte), Integer))
+        Me.pnlSidebar.Controls.Add(Me.lblSidebarTitle)
+        Me.pnlSidebar.Controls.Add(Me.pnlStatsCars)
+        Me.pnlSidebar.Controls.Add(Me.pnlStatsMotors)
+        Me.pnlSidebar.Controls.Add(Me.pnlStatsSales)
+        Me.pnlSidebar.Controls.Add(Me.btnManage)
+        Me.pnlSidebar.Dock = System.Windows.Forms.DockStyle.Left
+        Me.pnlSidebar.Location = New System.Drawing.Point(0, 60)
+        Me.pnlSidebar.Name = "pnlSidebar"
+        Me.pnlSidebar.Size = New System.Drawing.Size(260, 560)
+        Me.pnlSidebar.TabIndex = 1
+        '
+        'lblSidebarTitle
+        '
+        Me.lblSidebarTitle.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
+        Me.lblSidebarTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        Me.lblSidebarTitle.Location = New System.Drawing.Point(20, 20)
+        Me.lblSidebarTitle.Name = "lblSidebarTitle"
+        Me.lblSidebarTitle.Size = New System.Drawing.Size(220, 25)
+        Me.lblSidebarTitle.TabIndex = 0
+        Me.lblSidebarTitle.Text = "LOBBY STATISTICS"
+        '
+        'pnlStatsCars
+        '
+        Me.pnlStatsCars.BackColor = System.Drawing.Color.White
+        Me.pnlStatsCars.Controls.Add(Me.lblStatsCarsHeader)
+        Me.pnlStatsCars.Controls.Add(Me.lblAvailableCars)
+        Me.pnlStatsCars.Controls.Add(Me.lblOccupiedCars)
+        Me.pnlStatsCars.Location = New System.Drawing.Point(20, 60)
+        Me.pnlStatsCars.Name = "pnlStatsCars"
+        Me.pnlStatsCars.Size = New System.Drawing.Size(220, 100)
+        Me.pnlStatsCars.TabIndex = 1
+        '
+        'lblStatsCarsHeader
+        '
+        Me.lblStatsCarsHeader.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.lblStatsCarsHeader.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        Me.lblStatsCarsHeader.Location = New System.Drawing.Point(15, 12)
+        Me.lblStatsCarsHeader.Name = "lblStatsCarsHeader"
+        Me.lblStatsCarsHeader.Size = New System.Drawing.Size(190, 20)
+        Me.lblStatsCarsHeader.TabIndex = 0
+        Me.lblStatsCarsHeader.Text = "Car Spaces"
+        '
+        'lblAvailableCars
+        '
+        Me.lblAvailableCars.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!)
+        Me.lblAvailableCars.ForeColor = System.Drawing.Color.FromArgb(CType(CType(46, Byte), Integer), CType(CType(158, Byte), Integer), CType(CType(89, Byte), Integer))
+        Me.lblAvailableCars.Location = New System.Drawing.Point(15, 40)
+        Me.lblAvailableCars.Name = "lblAvailableCars"
+        Me.lblAvailableCars.Size = New System.Drawing.Size(190, 20)
+        Me.lblAvailableCars.TabIndex = 1
+        Me.lblAvailableCars.Text = "Available Slots (Car): 50"
+        '
+        'lblOccupiedCars
+        '
+        Me.lblOccupiedCars.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!)
+        Me.lblOccupiedCars.ForeColor = System.Drawing.Color.FromArgb(CType(CType(196, Byte), Integer), CType(CType(94, Byte), Integer), CType(CType(53, Byte), Integer))
+        Me.lblOccupiedCars.Location = New System.Drawing.Point(15, 65)
+        Me.lblOccupiedCars.Name = "lblOccupiedCars"
+        Me.lblOccupiedCars.Size = New System.Drawing.Size(190, 20)
+        Me.lblOccupiedCars.TabIndex = 2
+        Me.lblOccupiedCars.Text = "Occupied Slots: 0"
+        '
+        'pnlStatsMotors
+        '
+        Me.pnlStatsMotors.BackColor = System.Drawing.Color.White
+        Me.pnlStatsMotors.Controls.Add(Me.lblStatsMotorsHeader)
+        Me.pnlStatsMotors.Controls.Add(Me.lblAvailableMotors)
+        Me.pnlStatsMotors.Controls.Add(Me.lblOccupiedMotors)
+        Me.pnlStatsMotors.Location = New System.Drawing.Point(20, 180)
+        Me.pnlStatsMotors.Name = "pnlStatsMotors"
+        Me.pnlStatsMotors.Size = New System.Drawing.Size(220, 100)
+        Me.pnlStatsMotors.TabIndex = 2
+        '
+        'lblStatsMotorsHeader
+        '
+        Me.lblStatsMotorsHeader.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.lblStatsMotorsHeader.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        Me.lblStatsMotorsHeader.Location = New System.Drawing.Point(15, 12)
+        Me.lblStatsMotorsHeader.Name = "lblStatsMotorsHeader"
+        Me.lblStatsMotorsHeader.Size = New System.Drawing.Size(190, 20)
+        Me.lblStatsMotorsHeader.TabIndex = 0
+        Me.lblStatsMotorsHeader.Text = "Motorcycle Spaces"
+        '
+        'lblAvailableMotors
+        '
+        Me.lblAvailableMotors.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!)
+        Me.lblAvailableMotors.ForeColor = System.Drawing.Color.FromArgb(CType(CType(46, Byte), Integer), CType(CType(158, Byte), Integer), CType(CType(89, Byte), Integer))
+        Me.lblAvailableMotors.Location = New System.Drawing.Point(15, 40)
+        Me.lblAvailableMotors.Name = "lblAvailableMotors"
+        Me.lblAvailableMotors.Size = New System.Drawing.Size(190, 20)
+        Me.lblAvailableMotors.TabIndex = 1
+        Me.lblAvailableMotors.Text = "Available Slots (Motor): 20"
+        '
+        'lblOccupiedMotors
+        '
+        Me.lblOccupiedMotors.Font = New System.Drawing.Font("Segoe UI Semibold", 9.0!)
+        Me.lblOccupiedMotors.ForeColor = System.Drawing.Color.FromArgb(CType(CType(196, Byte), Integer), CType(CType(94, Byte), Integer), CType(CType(53, Byte), Integer))
+        Me.lblOccupiedMotors.Location = New System.Drawing.Point(15, 65)
+        Me.lblOccupiedMotors.Name = "lblOccupiedMotors"
+        Me.lblOccupiedMotors.Size = New System.Drawing.Size(190, 20)
+        Me.lblOccupiedMotors.TabIndex = 2
+        Me.lblOccupiedMotors.Text = "Occupied Slots: 0"
+        '
+        'pnlStatsSales
+        '
+        Me.pnlStatsSales.BackColor = System.Drawing.Color.White
+        Me.pnlStatsSales.Controls.Add(Me.lblStatsSalesHeader)
+        Me.pnlStatsSales.Controls.Add(Me.lblTotalSales)
+        Me.pnlStatsSales.Location = New System.Drawing.Point(20, 300)
+        Me.pnlStatsSales.Name = "pnlStatsSales"
+        Me.pnlStatsSales.Size = New System.Drawing.Size(220, 80)
+        Me.pnlStatsSales.TabIndex = 3
+        '
+        'lblStatsSalesHeader
+        '
+        Me.lblStatsSalesHeader.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.lblStatsSalesHeader.ForeColor = System.Drawing.Color.FromArgb(CType(CType(120, Byte), Integer), CType(CType(130, Byte), Integer), CType(CType(140, Byte), Integer))
+        Me.lblStatsSalesHeader.Location = New System.Drawing.Point(15, 12)
+        Me.lblStatsSalesHeader.Name = "lblStatsSalesHeader"
+        Me.lblStatsSalesHeader.Size = New System.Drawing.Size(190, 20)
+        Me.lblStatsSalesHeader.TabIndex = 0
+        Me.lblStatsSalesHeader.Text = "Total Income"
+        '
+        'lblTotalSales
+        '
+        Me.lblTotalSales.Font = New System.Drawing.Font("Segoe UI", 13.0!, System.Drawing.FontStyle.Bold)
+        Me.lblTotalSales.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(168, Byte), Integer), CType(CType(181, Byte), Integer))
+        Me.lblTotalSales.Location = New System.Drawing.Point(15, 38)
+        Me.lblTotalSales.Name = "lblTotalSales"
+        Me.lblTotalSales.Size = New System.Drawing.Size(190, 30)
+        Me.lblTotalSales.TabIndex = 1
+        Me.lblTotalSales.Text = "₱0.00"
+        '
+        'btnManage
+        '
+        Me.btnManage.BackColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(168, Byte), Integer), CType(CType(181, Byte), Integer))
+        Me.btnManage.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnManage.FlatAppearance.BorderSize = 0
+        Me.btnManage.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.btnManage.ForeColor = System.Drawing.Color.White
+        Me.btnManage.Location = New System.Drawing.Point(20, 480)
+        Me.btnManage.Name = "btnManage"
+        Me.btnManage.Size = New System.Drawing.Size(220, 45)
+        Me.btnManage.TabIndex = 4
+        Me.btnManage.Text = "Open Manager"
+        Me.btnManage.UseVisualStyleBackColor = False
+        '
+        'pnlWorkspace
+        '
+        Me.pnlWorkspace.BackColor = System.Drawing.Color.White
+        Me.pnlWorkspace.Controls.Add(Me.pnlTabBar)
+        Me.pnlWorkspace.Controls.Add(Me.pnlViewContainer)
+        Me.pnlWorkspace.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.pnlWorkspace.Location = New System.Drawing.Point(260, 60)
+        Me.pnlWorkspace.Name = "pnlWorkspace"
+        Me.pnlWorkspace.Size = New System.Drawing.Size(720, 560)
+        Me.pnlWorkspace.TabIndex = 2
+        '
+        'pnlTabBar
+        '
+        Me.pnlTabBar.BackColor = System.Drawing.Color.FromArgb(CType(CType(245, Byte), Integer), CType(CType(247, Byte), Integer), CType(CType(250, Byte), Integer))
+        Me.pnlTabBar.Controls.Add(Me.btnTabMap)
+        Me.pnlTabBar.Controls.Add(Me.btnTabTable)
+        Me.pnlTabBar.Dock = System.Windows.Forms.DockStyle.Top
+        Me.pnlTabBar.Location = New System.Drawing.Point(0, 0)
+        Me.pnlTabBar.Name = "pnlTabBar"
+        Me.pnlTabBar.Size = New System.Drawing.Size(720, 45)
+        Me.pnlTabBar.TabIndex = 0
+        '
+        'btnTabMap
+        '
+        Me.btnTabMap.BackColor = System.Drawing.Color.White
+        Me.btnTabMap.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnTabMap.FlatAppearance.BorderSize = 0
+        Me.btnTabMap.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.btnTabMap.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        Me.btnTabMap.Location = New System.Drawing.Point(0, 0)
+        Me.btnTabMap.Name = "btnTabMap"
+        Me.btnTabMap.Size = New System.Drawing.Size(150, 45)
+        Me.btnTabMap.TabIndex = 0
+        Me.btnTabMap.Text = "Visual Slot Map"
+        Me.btnTabMap.UseVisualStyleBackColor = False
+        '
+        'btnTabTable
+        '
+        Me.btnTabTable.BackColor = System.Drawing.Color.Transparent
+        Me.btnTabTable.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        Me.btnTabTable.FlatAppearance.BorderSize = 0
+        Me.btnTabTable.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        Me.btnTabTable.ForeColor = System.Drawing.Color.FromArgb(CType(CType(120, Byte), Integer), CType(CType(130, Byte), Integer), CType(CType(140, Byte), Integer))
+        Me.btnTabTable.Location = New System.Drawing.Point(150, 0)
+        Me.btnTabTable.Name = "btnTabTable"
+        Me.btnTabTable.Size = New System.Drawing.Size(150, 45)
+        Me.btnTabTable.TabIndex = 1
+        Me.btnTabTable.Text = "Occupancy Table"
+        Me.btnTabTable.UseVisualStyleBackColor = False
+        '
+        'pnlViewContainer
+        '
+        Me.pnlViewContainer.Controls.Add(Me.pnlMapView)
+        Me.pnlViewContainer.Controls.Add(Me.pnlTableView)
+        Me.pnlViewContainer.Location = New System.Drawing.Point(10, 55)
+        Me.pnlViewContainer.Name = "pnlViewContainer"
+        Me.pnlViewContainer.Size = New System.Drawing.Size(700, 495)
+        Me.pnlViewContainer.TabIndex = 1
+        '
+        'pnlMapView
+        '
+        Me.pnlMapView.Controls.Add(Me.lblCarZoneTitle)
+        Me.pnlMapView.Controls.Add(Me.flpCarSlots)
+        Me.pnlMapView.Controls.Add(Me.lblMotorZoneTitle)
+        Me.pnlMapView.Controls.Add(Me.flpMotorSlots)
+        Me.pnlMapView.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.pnlMapView.Location = New System.Drawing.Point(0, 0)
+        Me.pnlMapView.Name = "pnlMapView"
+        Me.pnlMapView.Size = New System.Drawing.Size(700, 495)
+        Me.pnlMapView.TabIndex = 0
+        '
+        'lblCarZoneTitle
+        '
+        Me.lblCarZoneTitle.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.lblCarZoneTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        Me.lblCarZoneTitle.Location = New System.Drawing.Point(0, 0)
+        Me.lblCarZoneTitle.Name = "lblCarZoneTitle"
+        Me.lblCarZoneTitle.Size = New System.Drawing.Size(700, 20)
+        Me.lblCarZoneTitle.TabIndex = 0
+        Me.lblCarZoneTitle.Text = "Car Parking Slots Map"
+        '
+        'flpCarSlots
+        '
+        Me.flpCarSlots.AutoScroll = True
+        Me.flpCarSlots.Location = New System.Drawing.Point(0, 25)
+        Me.flpCarSlots.Name = "flpCarSlots"
+        Me.flpCarSlots.Size = New System.Drawing.Size(700, 290)
+        Me.flpCarSlots.TabIndex = 1
+        '
+        'lblMotorZoneTitle
+        '
+        Me.lblMotorZoneTitle.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
+        Me.lblMotorZoneTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        Me.lblMotorZoneTitle.Location = New System.Drawing.Point(0, 325)
+        Me.lblMotorZoneTitle.Name = "lblMotorZoneTitle"
+        Me.lblMotorZoneTitle.Size = New System.Drawing.Size(700, 20)
+        Me.lblMotorZoneTitle.TabIndex = 2
+        Me.lblMotorZoneTitle.Text = "Motorcycle Parking Slots Map"
+        '
+        'flpMotorSlots
+        '
+        Me.flpMotorSlots.AutoScroll = True
+        Me.flpMotorSlots.Location = New System.Drawing.Point(0, 350)
+        Me.flpMotorSlots.Name = "flpMotorSlots"
+        Me.flpMotorSlots.Size = New System.Drawing.Size(700, 140)
+        Me.flpMotorSlots.TabIndex = 3
+        '
+        'pnlTableView
+        '
+        Me.pnlTableView.Controls.Add(Me.dgvVehicles)
+        Me.pnlTableView.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.pnlTableView.Location = New System.Drawing.Point(0, 0)
+        Me.pnlTableView.Name = "pnlTableView"
+        Me.pnlTableView.Size = New System.Drawing.Size(700, 495)
+        Me.pnlTableView.TabIndex = 1
+        Me.pnlTableView.Visible = False
+        '
+        'dgvVehicles
+        '
+        Me.dgvVehicles.AllowUserToAddRows = False
+        Me.dgvVehicles.BackgroundColor = System.Drawing.Color.White
+        Me.dgvVehicles.BorderStyle = System.Windows.Forms.BorderStyle.None
+        DataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        DataGridViewCellStyle1.Font = New System.Drawing.Font("Segoe UI", 9.5!, System.Drawing.FontStyle.Bold)
+        DataGridViewCellStyle1.ForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        DataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White
+        DataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvVehicles.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
+        Me.dgvVehicles.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        DataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle2.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle2.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        DataGridViewCellStyle2.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(240, Byte), Integer), CType(CType(244, Byte), Integer), CType(CType(248, Byte), Integer))
+        DataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.[False]
+        Me.dgvVehicles.DefaultCellStyle = DataGridViewCellStyle2
+        Me.dgvVehicles.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.dgvVehicles.EnableHeadersVisualStyles = False
+        Me.dgvVehicles.GridColor = System.Drawing.Color.FromArgb(CType(CType(230, Byte), Integer), CType(CType(235, Byte), Integer), CType(CType(240, Byte), Integer))
+        Me.dgvVehicles.Location = New System.Drawing.Point(0, 0)
+        Me.dgvVehicles.Name = "dgvVehicles"
+        Me.dgvVehicles.ReadOnly = True
+        DataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft
+        DataGridViewCellStyle3.BackColor = System.Drawing.Color.White
+        DataGridViewCellStyle3.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        DataGridViewCellStyle3.ForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(CType(CType(240, Byte), Integer), CType(CType(244, Byte), Integer), CType(CType(248, Byte), Integer))
+        DataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.Black
+        DataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.[True]
+        Me.dgvVehicles.RowHeadersDefaultCellStyle = DataGridViewCellStyle3
+        Me.dgvVehicles.Size = New System.Drawing.Size(700, 495)
+        Me.dgvVehicles.TabIndex = 0
+        '
+        'StatusStrip1
+        '
+        Me.StatusStrip1.BackColor = System.Drawing.Color.FromArgb(CType(CType(30, Byte), Integer), CType(CType(46, Byte), Integer), CType(CType(90, Byte), Integer))
+        Me.StatusStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.lblStatusUser})
+        Me.StatusStrip1.Location = New System.Drawing.Point(0, 620)
+        Me.StatusStrip1.Name = "StatusStrip1"
+        Me.StatusStrip1.Size = New System.Drawing.Size(980, 22)
+        Me.StatusStrip1.TabIndex = 3
+        Me.StatusStrip1.Visible = False
+        '
+        'lblStatusUser
+        '
+        Me.lblStatusUser.ForeColor = System.Drawing.Color.White
+        Me.lblStatusUser.Name = "lblStatusUser"
+        Me.lblStatusUser.Size = New System.Drawing.Size(120, 17)
+        Me.lblStatusUser.Text = "ToolStripStatusLabel1"
+        
+        ' Hidden/Unused legacy controls to prevent compilation reference errors
+        Me.FlowLayoutPanel1.Location = New System.Drawing.Point(0, 0)
+        Me.FlowLayoutPanel1.Size = New System.Drawing.Size(0, 0)
+        Me.FlowLayoutPanel1.Visible = False
+        Me.Panel1.Location = New System.Drawing.Point(0, 0)
+        Me.Panel1.Size = New System.Drawing.Size(0, 0)
+        Me.Panel1.Visible = False
+        Me.Panel2.Location = New System.Drawing.Point(0, 0)
+        Me.Panel2.Size = New System.Drawing.Size(0, 0)
+        Me.Panel2.Visible = False
+        Me.Panel3.Location = New System.Drawing.Point(0, 0)
+        Me.Panel3.Size = New System.Drawing.Size(0, 0)
+        Me.Panel3.Visible = False
+        Me.Panel4.Location = New System.Drawing.Point(0, 0)
+        Me.Panel4.Size = New System.Drawing.Size(0, 0)
+        Me.Panel4.Visible = False
+        '
+        'DashBoardForm
+        '
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.BackColor = System.Drawing.Color.White
+        Me.ClientSize = New System.Drawing.Size(980, 620)
+        Me.Controls.Add(Me.pnlWorkspace)
+        Me.Controls.Add(Me.pnlSidebar)
+        Me.Controls.Add(Me.pnlHeader)
+        Me.Controls.Add(Me.StatusStrip1)
+        
+        ' Hidden lists
+        Me.Controls.Add(Me.FlowLayoutPanel1)
+        Me.Controls.Add(Me.Panel1)
+        Me.Controls.Add(Me.Panel2)
+        Me.Controls.Add(Me.Panel3)
+        Me.Controls.Add(Me.Panel4)
+        
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.Name = "DashBoardForm"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.Text = "DashBoardForm"
+        Me.StatusStrip1.ResumeLayout(False)
+        Me.StatusStrip1.PerformLayout()
+        CType(Me.dgvVehicles, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.pnlHeader.ResumeLayout(False)
+        Me.pnlSidebar.ResumeLayout(False)
+        Me.pnlStatsCars.ResumeLayout(False)
+        Me.pnlStatsMotors.ResumeLayout(False)
+        Me.pnlStatsSales.ResumeLayout(False)
+        Me.pnlWorkspace.ResumeLayout(False)
+        Me.pnlTabBar.ResumeLayout(False)
+        Me.pnlViewContainer.ResumeLayout(False)
+        Me.pnlMapView.ResumeLayout(False)
+        Me.pnlTableView.ResumeLayout(False)
+        Me.ResumeLayout(False)
+        Me.PerformLayout()
+
+    End Sub
+
+    Friend WithEvents Label1 As Label
+    Friend WithEvents lblAvailableCars As Label
+    Friend WithEvents lblOccupiedCars As Label
+    Friend WithEvents btnManage As Button
+    Friend WithEvents StatusStrip1 As StatusStrip
+    Friend WithEvents lblStatusUser As ToolStripStatusLabel
+    Friend WithEvents dgvVehicles As DataGridView
+    Friend WithEvents btnExit As Button
+    Friend WithEvents lblAvailableMotors As Label
+    Friend WithEvents lblOccupiedMotors As Label
+    Friend WithEvents lblTotalSales As Label
+    
+    ' Programmatic redesigned controls
+    Friend WithEvents pnlHeader As Panel
+    Friend WithEvents pnlSidebar As Panel
+    Friend WithEvents lblSidebarTitle As Label
+    Friend WithEvents pnlStatsCars As Panel
+    Friend WithEvents lblStatsCarsHeader As Label
+    Friend WithEvents pnlStatsMotors As Panel
+    Friend WithEvents lblStatsMotorsHeader As Label
+    Friend WithEvents pnlStatsSales As Panel
+    Friend WithEvents lblStatsSalesHeader As Label
+    Friend WithEvents pnlWorkspace As Panel
+    Friend WithEvents pnlTabBar As Panel
+    Friend WithEvents btnTabMap As Button
+    Friend WithEvents btnTabTable As Button
+    Friend WithEvents pnlViewContainer As Panel
+    Friend WithEvents pnlMapView As Panel
+    Friend WithEvents pnlTableView As Panel
+    Friend WithEvents lblCarZoneTitle As Label
+    Friend WithEvents flpCarSlots As FlowLayoutPanel
+    Friend WithEvents lblMotorZoneTitle As Label
+    Friend WithEvents flpMotorSlots As FlowLayoutPanel
+    
+    ' Hidden legacy control variables (to prevent compiler errors)
+    Friend WithEvents FlowLayoutPanel1 As FlowLayoutPanel
+    Friend WithEvents Panel1 As Panel
+    Friend WithEvents Panel2 As Panel
+    Friend WithEvents Panel3 As Panel
+    Friend WithEvents Panel4 As Panel
+End Class

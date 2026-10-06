@@ -1,0 +1,57 @@
+﻿Imports System.Windows.Forms
+Imports System.Drawing
+
+Public Class menufrm
+    Private Sub menufrm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Enable window dragging on the header panel
+        ThemeManager.EnableDrag(pnlHeader, Me)
+
+        ' Apply rounded corner borders programmatically to buttons/cards
+        ThemeManager.MakeRoundedControl(btnExitLobby, 6)
+        ThemeManager.MakeRoundedControl(pnlCardTeller, 10)
+        ThemeManager.MakeRoundedControl(pnlCardCustomer, 10)
+        ThemeManager.MakeRoundedControl(btnEnterTeller, 6)
+        ThemeManager.MakeRoundedControl(btnEnterCustomer, 6)
+
+        ' Apply dynamic card borders/styling
+        ThemeManager.StyleCardPanel(pnlCardTeller, ThemeManager.TealAccent)
+        ThemeManager.StyleCardPanel(pnlCardCustomer, ThemeManager.GreenSuccess)
+
+        ' Bind Enter POS Click
+        AddHandler btnEnterTeller.Click, Sub()
+                                             Form1.Show()
+                                             Me.Hide()
+                                         End Sub
+
+        ' Bind Enter Customer View Click (Lobby Board)
+        AddHandler btnEnterCustomer.Click, Sub()
+                                               ' Open dashboard in lobby mode (hide occupancy table, total income, manager button)
+                                               DashBoardForm.ShowLobbyMode = True
+                                               DashBoardForm.Show()
+                                               Me.Hide()
+                                           End Sub
+
+        ' Bind Exit Button Click
+        AddHandler btnExitLobby.Click, Sub()
+                                           If MessageBox.Show("Are you sure you want to close the system?", "Exit Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
+                                               Application.Exit()
+                                           End If
+                                       End Sub
+    End Sub
+
+    ' Keep original ToolStrip methods for compatibility/events mapping
+    Private Sub ParkingTellerToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ParkingTellerToolStripMenuItem.Click
+        Form1.Show()
+        Me.Hide()
+    End Sub
+
+    Private Sub CustomerToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CustomerToolStripMenuItem.Click
+        DashBoardForm.ShowLobbyMode = True
+        DashBoardForm.Show()
+        Me.Hide()
+    End Sub
+
+    Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
+        Application.Exit()
+    End Sub
+End Class

@@ -1,0 +1,265 @@
+﻿Imports System.Windows.Forms
+Imports System.Drawing
+
+Public Class DashBoardForm
+    ' When true, the dashboard hides management-specific UI for the public Lobby Board view
+    Public ShowLobbyMode As Boolean = False
+
+    Private Sub DashBoardForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Enable window dragging on the header panel
+        ThemeManager.EnableDrag(pnlHeader, Me)
+
+        ' Apply rounded corners and flat styling to stats blocks and buttons
+        ThemeManager.MakeRoundedControl(pnlStatsCars, 8)
+        ThemeManager.MakeRoundedControl(pnlStatsMotors, 8)
+        ThemeManager.MakeRoundedControl(pnlStatsSales, 8)
+        ThemeManager.MakeRoundedControl(btnManage, 6)
+        ThemeManager.MakeRoundedControl(btnExit, 6)
+
+        ThemeManager.StyleCardPanel(pnlStatsCars, ThemeManager.TealAccent)
+        ThemeManager.StyleCardPanel(pnlStatsMotors, ThemeManager.TealAccent)
+        ThemeManager.StyleCardPanel(pnlStatsSales, ThemeManager.TealAccent)
+
+        ThemeManager.StyleButton(btnManage, ThemeManager.TealAccent)
+
+        ' Bind active view toggling tabs
+        AddHandler btnTabMap.Click, Sub()
+                                        pnlMapView.Visible = True
+                                        pnlTableView.Visible = False
+
+                                        btnTabMap.BackColor = Color.White
+                                        btnTabMap.ForeColor = ThemeManager.TextNavy
+
+                                        btnTabTable.BackColor = Color.Transparent
+                                        btnTabTable.ForeColor = ThemeManager.TextGray
+                                    End Sub
+
+        AddHandler btnTabTable.Click, Sub()
+                                          pnlMapView.Visible = False
+                                          pnlTableView.Visible = True
+
+                                          btnTabTable.BackColor = Color.White
+                                          btnTabTable.ForeColor = ThemeManager.TextNavy
+
+                                          btnTabMap.BackColor = Color.Transparent
+                                          btnTabMap.ForeColor = ThemeManager.TextGray
+                                      End Sub
+
+        ' Update the slots and visual map grid
+        UpdateSlots()
+    End Sub
+
+    ' THIS UPDATES THE COUNTERS, THE SALES, AND THE LIVE MAP GRID
+    Public Sub UpdateSlots()
+        ' 1. Set our maximum slot limits
+        Dim maxCarSlots As Integer = 50
+        Dim maxMotorSlots As Integer = 20
+
+        ' Initialize database arrays if not set
+        ParkingData.InitializeDatabase()
+
+        ' 2. Create variables to hold our dynamic counts and sales
+        Dim occupiedCars As Integer = 0
+        Dim occupiedMotors As Integer = 0
+        Dim totalSales As Double = 0.0
+
+        ' 3. Loop through database to count and sum money
+        If ParkingData.ParkingTable IsNot Nothing Then
+            For Each row As DataRow In ParkingData.ParkingTable.Rows
+                ' Count parked vehicles
+                If row("Status").ToString() = "Parked" Then
+                    If row("VehicleType").ToString() = "Car" Then
+                        occupiedCars += 1
+                    ElseIf row("VehicleType").ToString() = "Motorcycle" Then
+                        occupiedMotors += 1
+                    End If
+                End If
+
+                ' Calculate Total Sales (Adds up every Fee collected)
+                If Not IsDBNull(row("Fee")) Then
+                    totalSales += Convert.ToDouble(row("Fee"))
+                End If
+            Next
+        End If
+
+        ' 4. Calculate the available slots
+        Dim availableCars As Integer = maxCarSlots - occupiedCars
+        Dim availableMotors As Integer = maxMotorSlots - occupiedMotors
+
+        ' 5. Update the statistics labels
+        lblAvailableCars.Text = $"Available: {availableCars}"
+        lblOccupiedCars.Text = $"Occupied: {occupiedCars}"
+
+        lblAvailableMotors.Text = $"Available: {availableMotors}"
+        lblOccupiedMotors.Text = $"Occupied: {occupiedMotors}"
+
+        ' 6. Update total Sales display
+        lblTotalSales.Text = $"₱{totalSales.ToString("F2")}"
+
+        ' 7. Link system memory table to data grid view
+        dgvVehicles.DataSource = Nothing
+        dgvVehicles.DataSource = ParkingData.ParkingTable
+
+        ' 8. Hide database status columns
+        If dgvVehicles.Columns.Contains("Status") Then dgvVehicles.Columns("Status").Visible = False
+
+        ' 9. Format headers text
+        If dgvVehicles.Columns.Contains("PlateNumber") Then dgvVehicles.Columns("PlateNumber").HeaderText = "Plate"
+        If dgvVehicles.Columns.Contains("VehicleType") Then dgvVehicles.Columns("VehicleType").HeaderText = "Type"
+        If dgvVehicles.Columns.Contains("Slot") Then dgvVehicles.Columns("Slot").HeaderText = "Slot"
+
+        If dgvVehicles.Columns.Contains("TimeIn") Then
+            dgvVehicles.Columns("TimeIn").HeaderText = "Time in"
+            dgvVehicles.Columns("TimeIn").DefaultCellStyle.Format = "h:mm tt"
+        End If
+
+        If dgvVehicles.Columns.Contains("TimeOut") Then
+            dgvVehicles.Columns("TimeOut").HeaderText = "Time out"
+            dgvVehicles.Columns("TimeOut").DefaultCellStyle.Format = "h:mm tt"
+        End If
+
+        If dgvVehicles.Columns.Contains("Fee") Then
+            dgvVehicles.Columns("Fee").HeaderText = "Amount Paid"
+            dgvVehicles.Columns("Fee").DefaultCellStyle.Format = "₱0.00"
+        End If
+
+        dgvVehicles.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+
+        ' 10. DYNAMICALLY PAINT THE VISUAL GRID MAP
+
+        ' Adjust visibility for Lobby Board mode: hide occupancy table, total income and manager button
+        If ShowLobbyMode Then
+            If dgvVehicles IsNot Nothing Then dgvVehicles.Visible = False
+            If lblTotalSales IsNot Nothing Then lblTotalSales.Visible = False
+            If btnManage IsNot Nothing Then btnManage.Visible = False
+            ' Keep stat panels (car/motor spaces) visible in lobby view
+        Else
+            If dgvVehicles IsNot Nothing Then dgvVehicles.Visible = True
+            If lblTotalSales IsNot Nothing Then lblTotalSales.Visible = True
+            If btnManage IsNot Nothing Then btnManage.Visible = True
+        End If
+        flpCarSlots.Controls.Clear()
+        flpMotorSlots.Controls.Clear()
+
+        ' Suspends layout refreshes to avoid screen flickering
+        flpCarSlots.SuspendLayout()
+        flpMotorSlots.SuspendLayout()
+
+        For Each slotEntry In ParkingData.parkingDatabase
+            Dim slotName As String = slotEntry.Key
+            Dim isAvailable As Boolean = slotEntry.Value
+
+            ' Find if there is a plate parked in this slot
+            Dim plateText As String = ""
+            For Each row As DataRow In ParkingData.ParkingTable.Rows
+                If row("Slot").ToString() = slotName AndAlso row("Status").ToString() = "Parked" Then
+                    plateText = row("PlateNumber").ToString()
+                    Exit For
+                End If
+            Next
+
+            ' Create Visual Slot Card Panel
+            Dim pnlSlot As New Panel()
+            pnlSlot.Size = New Size(62, 44)
+            pnlSlot.Margin = New Padding(3)
+
+            ' Select soft high-end colors
+            Dim bgColor As Color
+            Dim borderColor As Color
+            Dim textColor As Color
+
+            If isAvailable Then
+                ' Soft Vacant Green
+                bgColor = Color.FromArgb(235, 247, 239)
+                borderColor = Color.FromArgb(46, 158, 89)
+                textColor = Color.FromArgb(30, 90, 45)
+            Else
+                ' Soft Occupied Red
+                bgColor = Color.FromArgb(253, 237, 237)
+                borderColor = Color.FromArgb(220, 80, 80)
+                textColor = Color.FromArgb(130, 30, 30)
+            End If
+
+            pnlSlot.BackColor = bgColor
+
+            ' Paint Border Event Handler
+            AddHandler pnlSlot.Paint, Sub(sSender, sEvent)
+                                         Using pen As New Pen(borderColor, 1.5!)
+                                             sEvent.Graphics.DrawRectangle(pen, 0, 0, pnlSlot.Width - 1, pnlSlot.Height - 1)
+                                         End Using
+                                     End Sub
+
+            ' Slot Name Label
+            Dim lblName As New Label()
+            lblName.Text = slotName
+            lblName.Font = New Font("Segoe UI", 7.5!, FontStyle.Bold)
+            lblName.ForeColor = textColor
+            lblName.Location = New Point(3, 3)
+            lblName.Size = New Size(56, 13)
+            lblName.TextAlign = ContentAlignment.TopLeft
+            pnlSlot.Controls.Add(lblName)
+
+            ' Vehicle Plate/Status Label
+            Dim lblPlate As New Label()
+            lblPlate.Text = If(plateText = "", "VACANT", plateText)
+            lblPlate.Font = New Font("Segoe UI Semibold", 7.0!)
+            lblPlate.ForeColor = If(plateText = "", Color.FromArgb(120, 130, 140), textColor)
+            lblPlate.Location = New Point(3, 22)
+            lblPlate.Size = New Size(56, 15)
+            lblPlate.TextAlign = ContentAlignment.MiddleCenter
+            pnlSlot.Controls.Add(lblPlate)
+
+            ' Add to correct zone
+            Dim slotNum As Integer = 0
+            Dim numPart As String = slotName.Substring(1)
+            Integer.TryParse(numPart, slotNum)
+
+            If slotNum <= 25 Then
+                flpCarSlots.Controls.Add(pnlSlot)
+            Else
+                flpMotorSlots.Controls.Add(pnlSlot)
+            End If
+        Next
+
+        ' Resume layout refreshes
+        flpCarSlots.ResumeLayout(True)
+        flpMotorSlots.ResumeLayout(True)
+    End Sub
+
+    ' Open the Manager Screen where checking-in/out happens
+    Private Sub btnManage_Click(sender As Object, e As EventArgs) Handles btnManage.Click
+        ParkingManagerForm.Show()
+        Me.Hide() ' Hide dashboard when opening the manager screen
+    End Sub
+
+    ' Exit back to correct form
+    Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
+        Dim mainForm As Form = Application.OpenForms("MainMenuForm")
+        
+        If mainForm IsNot Nothing Then
+            Dim response As DialogResult = MessageBox.Show("Are you sure you want to go back to Main Menu?",
+                                                           "Confirm Exit",
+                                                           MessageBoxButtons.YesNo,
+                                                           MessageBoxIcon.Question)
+            If response = DialogResult.Yes Then
+                mainForm.Show()
+                Me.Close()
+            End If
+        Else
+            menufrm.Show()
+            Me.Close()
+        End If
+    End Sub
+
+    Private Sub DashBoardForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+        If e.CloseReason = CloseReason.UserClosing Then
+            ' Ensure correct form shows back up when closed via window X button
+            Dim mainForm As Form = Application.OpenForms("MainMenuForm")
+            If mainForm IsNot Nothing Then
+                mainForm.Show()
+            Else
+                menufrm.Show()
+            End If
+        End If
+    End Sub
+End Class
