@@ -1,7 +1,0 @@
-<Rates>
-  <CarBaseRate>50</CarBaseRate>
-  <MotorBaseRate>30</MotorBaseRate>
-  <CarSucceedingRate>20</CarSucceedingRate>
-  <MotorSucceedingRate>10</MotorSucceedingRate>
-  <FreeHours>1</FreeHours>
-</Rates>
