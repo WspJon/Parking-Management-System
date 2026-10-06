@@ -23,6 +23,11 @@ Public Class ManageReservationDialogForm
         lblReserving.Text = "Slot " & slotName
         lblPlate.Text = plateText
         lblName.Text = "Reserved By: " & If(String.IsNullOrWhiteSpace(reservedBy), "Unknown", reservedBy)
+
+        If Form1.CurrentUserRole = "Customer" Then
+            btnCheckIn.Visible = False
+            btnCancelRes.Location = New Point(CInt((Me.ClientSize.Width - btnCancelRes.Width) / 2), btnCancelRes.Location.Y)
+        End If
     End Sub
     
     Private Sub ManageReservationDialogForm_Paint(sender As Object, e As PaintEventArgs) Handles Me.Paint

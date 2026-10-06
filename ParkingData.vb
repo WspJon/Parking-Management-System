@@ -8,12 +8,12 @@ Module ParkingData
 
     Public parkingDatabase As New Dictionary(Of String, Boolean)()
 
-    Public CarBaseRate As Double = 50.0
-    Public MotorBaseRate As Double = 50.0
-    Public CarSucceedingRate As Double = 20.0
-    Public MotorSucceedingRate As Double = 10.0
+    Public CarBaseRate As Decimal = 50.0D
+    Public MotorBaseRate As Decimal = 50.0D
+    Public CarSucceedingRate As Decimal = 20.0D
+    Public MotorSucceedingRate As Decimal = 10.0D
     Public FreeHours As Integer = 1
-    Public OverstayPenaltyFee As Double = 200.0
+    Public OverstayPenaltyFee As Decimal = 200.0D
 
     Public MaxSlots As Integer = 70
 
@@ -25,20 +25,24 @@ Module ParkingData
         If ParkingTable.Columns.Count = 0 Then
             ParkingTable.TableName = "ParkingRecord"
 
+            ParkingTable.Columns.Add("TransactionID", GetType(Integer))
             ParkingTable.Columns.Add("Code", GetType(String))
             ParkingTable.Columns.Add("PlateNumber", GetType(String))
             ParkingTable.Columns.Add("CheckIn", GetType(DateTime))
             ParkingTable.Columns.Add("CheckOut", GetType(DateTime))
             ParkingTable.Columns.Add("VehicleType", GetType(String))
             ParkingTable.Columns.Add("RateName", GetType(String))
-            ParkingTable.Columns.Add("Rate", GetType(Double))
+            ParkingTable.Columns.Add("Rate", GetType(Decimal))
             ParkingTable.Columns.Add("Slot", GetType(String))
             ParkingTable.Columns.Add("TotalTime", GetType(String))
-            ParkingTable.Columns.Add("TotalAmount", GetType(Double))
+            ParkingTable.Columns.Add("TotalAmount", GetType(Decimal))
             ParkingTable.Columns.Add("PaidStatus", GetType(String))
             ParkingTable.Columns.Add("ReservedBy", GetType(String))
             ParkingTable.Columns.Add("ProcessedBy", GetType(String))
             ParkingTable.Columns.Add("ReservationDate", GetType(DateTime))
+            ParkingTable.Columns.Add("ReservationID", GetType(Integer))
+            ParkingTable.Columns.Add("CustomerID", GetType(Integer))
+            ParkingTable.Columns.Add("TellerID", GetType(Integer))
         End If
 
         If parkingDatabase.Count = 0 Then
@@ -57,6 +61,7 @@ Module ParkingData
     Public Sub InitializeUsers()
         If UsersTable.Columns.Count = 0 Then
             UsersTable.TableName = "UserRecord"
+            UsersTable.Columns.Add("UserID", GetType(Integer))
             UsersTable.Columns.Add("FullName", GetType(String))
             UsersTable.Columns.Add("Username", GetType(String))
             UsersTable.Columns.Add("Password", GetType(String))

@@ -1,33 +1,33 @@
 Imports System.Windows.Forms
 Imports System.Drawing
 Imports System.Data
-Imports LocalDb.Data.LocalDbClient
+Imports MySql.Data.MySqlClient
 
 Public Class ParkingManagerForm
     Dim foundRow As DataRow = Nothing
-    Dim currentFee As Double = 0.0
-    Dim penaltyAmount As Double = 0.0
+    Dim currentFee As Decimal = 0D
+    Dim penaltyAmount As Decimal = 0D
 
     ' Kinukuha ang CustomerID o TellerID base sa Username, depende sa role
     Private Function GetCurrentUserID(role As String, username As String) As Object
         Try
-            Using conn As LocalDbConnection = GetConnection()
+            Using conn As MySqlConnection = GetConnection()
                 If conn IsNot Nothing Then
                     If role = "Teller" Then
-                        Dim cmd As New LocalDbCommand("SELECT TellerID FROM tblteller WHERE Username = @user", conn)
+                        Dim cmd As New MySqlCommand("SELECT TellerID FROM tblteller WHERE Username = @user", conn)
                         cmd.Parameters.AddWithValue("@user", username)
                         Dim result = cmd.ExecuteScalar()
                         Return If(result Is Nothing, CType(DBNull.Value, Object), result)
 
                     ElseIf role = "Customer" Then
-                        Dim cmd As New LocalDbCommand("SELECT CustomerID FROM tblcustomer WHERE Username = @user", conn)
+                        Dim cmd As New MySqlCommand("SELECT CustomerID FROM tblcustomer WHERE Username = @user", conn)
                         cmd.Parameters.AddWithValue("@user", username)
                         Dim result = cmd.ExecuteScalar()
                         Return If(result Is Nothing, CType(DBNull.Value, Object), result)
                     End If
                 End If
             End Using
-        Catch ex As LocalDbException
+        Catch ex As MySqlException
         End Try
 
         Return DBNull.Value
@@ -60,6 +60,7 @@ Public Class ParkingManagerForm
         cboSearchPlate.AutoCompleteMode = AutoCompleteMode.SuggestAppend
         cboSearchPlate.AutoCompleteSource = AutoCompleteSource.CustomSource
 
+        txtPlateNumber.MaxLength = 8
         RefreshParkedPlates()
         UpdateManagerStats()
     End Sub
@@ -150,191 +151,194 @@ Public Class ParkingManagerForm
     End Sub
 
     Private Sub ParkingManagerForm_FormClosed(sender As Object, e As FormClosedEventArgs) Handles Me.FormClosed
-        If Form1.CurrentUserRole = "Teller" Then
-            frmadmindashboard.ShowLobbyMode = False
-            frmadmindashboard.UpdateSlots()
-            frmadmindashboard.Show()
-        Else
-            DashBoardForm.ShowLobbyMode = False
-            DashBoardForm.UpdateSlots()
-            DashBoardForm.Show()
-        End If
+        DashBoardForm.ShowLobbyMode = False
+        DashBoardForm.LoadDataFromDatabase()
+        DashBoardForm.UpdateSlots()
+        DashBoardForm.Show()
     End Sub
 
     Private Sub btnPark_Click(sender As Object, e As EventArgs) Handles btnPark.Click
-        ParkingData.InitializeDatabase()
-
-        If txtPlateNumber.Text = "" Or cmbType.Text = "" Or cboParkingSlots.SelectedItem Is Nothing Then
+        If String.IsNullOrWhiteSpace(txtPlateNumber.Text) OrElse cmbType.SelectedItem Is Nothing OrElse cboParkingSlots.SelectedItem Is Nothing Then
             MessageBox.Show("Please fill out all fields and select a slot.", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        If txtPlateNumber.Text.Trim().Length < 4 OrElse txtPlateNumber.Text.Trim().Length > 8 Then
-            MessageBox.Show("Plate number must be between 4 and 8 characters!", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Dim newPlate As String = DatabaseModule.NormalizePlate(txtPlateNumber.Text)
+        If Not DatabaseModule.IsValidPlate(newPlate) Then
+            MessageBox.Show("Plate number must be between 4 and 8 alphanumeric characters!", "Input Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         Dim selectedSlot As String = cboParkingSlots.SelectedItem.ToString()
-        If ParkingData.parkingDatabase(selectedSlot) = False Then
-            MessageBox.Show("This slot is already occupied! Please choose another.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Dim isCarSlot As Boolean = DatabaseModule.IsCarSlot(selectedSlot)
+        Dim isSelectedCar As Boolean = (cmbType.Text = "Car")
+
+        If isSelectedCar <> isCarSlot Then
+            MessageBox.Show($"Slot {selectedSlot} is designated for {If(isCarSlot, "Cars (Four Wheels)", "Motorcycles (Two Wheels)")}. Please choose an appropriate slot.", "Slot Mismatch", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
-        Dim newPlate As String = txtPlateNumber.Text.ToUpper().Trim()
-
-        For Each r As DataRow In ParkingData.ParkingTable.Rows
-            If r("Slot").ToString() = selectedSlot AndAlso r("PaidStatus").ToString() = "Reserved" Then
-                If Not IsDBNull(r("ReservationDate")) AndAlso Convert.ToDateTime(r("ReservationDate")).Date = DateTime.Now.Date Then
-                    If r("PlateNumber").ToString().ToUpper() <> newPlate Then
-                        MessageBox.Show("This slot is reserved for another vehicle today. Please choose a different slot.", "Slot Reserved", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Try
+            Using conn As MySqlConnection = GetConnection()
+                If conn IsNot Nothing Then
+                    ' 1. Check if selected slot is currently occupied in tblparkingrecord
+                    Dim checkSlotCmd As New MySqlCommand("SELECT COUNT(*) FROM tblparkingrecord WHERE `Parking Slot` = @slot AND `Paid Status` = 'Not Paid'", conn)
+                    checkSlotCmd.Parameters.AddWithValue("@slot", selectedSlot)
+                    If Convert.ToInt32(checkSlotCmd.ExecuteScalar()) > 0 Then
+                        MessageBox.Show($"Slot {selectedSlot} is already occupied! Please choose another slot.", "Slot Occupied", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                         Exit Sub
                     End If
-                End If
-            End If
-        Next
 
-        If ParkingData.ParkingTable IsNot Nothing Then
-            For Each existing As DataRow In ParkingData.ParkingTable.Rows
-                If existing("PlateNumber").ToString().ToUpper() = newPlate Then
-                    If existing("PaidStatus").ToString() = "Reserved" Then
-                        Dim resSlot As String = existing("Slot").ToString()
-                        Dim claimMsg As String = "This plate has an ADVANCE RESERVATION for Slot " & resSlot & "."
+                    ' 2. Check if this plate is already actively parked in tblparkingrecord
+                    Dim checkPlateCmd As New MySqlCommand("SELECT `Parking Slot` FROM tblparkingrecord WHERE PlateNumber = @plate AND `Paid Status` = 'Not Paid'", conn)
+                    checkPlateCmd.Parameters.AddWithValue("@plate", newPlate)
+                    Dim parkedSlotObj = checkPlateCmd.ExecuteScalar()
+                    If parkedSlotObj IsNot Nothing Then
+                        MessageBox.Show($"Vehicle {newPlate} is already parked in slot {parkedSlotObj}!", "Duplicate Plate", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                        Exit Sub
+                    End If
+
+                    ' 3. Check if this vehicle has an active reservation
+                    Dim checkResCmd As New MySqlCommand("SELECT ReservationID, CustomerID, CustomerName, ParkingSlot, ReservationDate, VehicleType FROM tblreservation WHERE VehiclePlate = @plate AND Status = 'Reserved' ORDER BY ReservationDate ASC", conn)
+                    checkResCmd.Parameters.AddWithValue("@plate", newPlate)
+                    Dim resDt As New DataTable()
+                    Dim da As New MySqlDataAdapter(checkResCmd)
+                    da.Fill(resDt)
+
+                    If resDt.Rows.Count > 0 Then
+                        Dim resRow As DataRow = resDt.Rows(0)
+                        Dim resDate As DateTime = Convert.ToDateTime(resRow("ReservationDate"))
+
+                        If resDate.Date > DateTime.Today Then
+                            MessageBox.Show($"This plate has an advance reservation for {resDate.ToString("yyyy-MM-dd")}. Early check-in is not permitted before the reservation date.", "Early Check-In", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                            Exit Sub
+                        End If
+
+                        Dim resSlot As String = resRow("ParkingSlot").ToString()
+                        Dim resId As Integer = Convert.ToInt32(resRow("ReservationID"))
+                        Dim resCustId As Object = resRow("CustomerID")
+                        Dim claimMsg As String = $"This plate has an active reservation for Slot {resSlot}."
+
                         If resSlot <> selectedSlot Then
-                            claimMsg &= vbCrLf & "You have selected a different slot (" & selectedSlot & "). Reassign reservation to " & selectedSlot & " and check-in now?"
+                            claimMsg &= vbCrLf & $"Reassign reservation from {resSlot} to selected slot {selectedSlot} and check in now?"
                         Else
-                            claimMsg &= vbCrLf & "Claim this reservation now?"
+                            claimMsg &= vbCrLf & "Claim reservation and check in now?"
                         End If
 
                         If MessageBox.Show(claimMsg, "Reservation Found", MessageBoxButtons.YesNo, MessageBoxIcon.Question) = DialogResult.Yes Then
-                            existing("Slot") = selectedSlot
-                            existing("PaidStatus") = "Not Paid"
-                            existing("CheckIn") = DateTime.Now
-                            ParkingData.parkingDatabase(selectedSlot) = False
-
-                            DataStore.SaveDatabase()
-
-                            ' --- LocalDb Sync: I-update ang reservation record sa LocalStore ---
-                            Try
-                                Using conn As LocalDbConnection = GetConnection()
-                                    If conn IsNot Nothing Then
-                                        Dim updCmd As New LocalDbCommand("UPDATE tblparkingrecord SET `Parking Slot` = @slot, `Paid Status` = 'Not Paid', CheckIn = @checkin WHERE code = @code", conn)
-                                        updCmd.Parameters.AddWithValue("@slot", selectedSlot)
-                                        updCmd.Parameters.AddWithValue("@checkin", DateTime.Now)
-                                        updCmd.Parameters.AddWithValue("@code", existing("Code").ToString())
-                                        updCmd.ExecuteNonQuery()
+                            ' Check-in within database transaction
+                            Using tran As MySqlTransaction = conn.BeginTransaction()
+                                Try
+                                    Dim updCmd As New MySqlCommand("UPDATE tblreservation SET Status = 'Checked In', ParkingSlot = @slot WHERE ReservationID = @resid AND Status = 'Reserved'", conn, tran)
+                                    updCmd.Parameters.AddWithValue("@slot", selectedSlot)
+                                    updCmd.Parameters.AddWithValue("@resid", resId)
+                                    Dim aff As Integer = updCmd.ExecuteNonQuery()
+                                    If aff = 0 Then
+                                        tran.Rollback()
+                                        MessageBox.Show("Reservation is no longer active or was already checked in.", "Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                        Exit Sub
                                     End If
-                                End Using
-                            Catch ex As LocalDbException
-                                MessageBox.Show("Warning: Hindi na-sync sa database. " & ex.Message, "Database Sync Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                            End Try
 
-                            If Form1.CurrentUserRole = "Teller" Then
-                                frmadmindashboard.UpdateSlots()
-                            Else
-                                DashBoardForm.UpdateSlots()
-                            End If
-                            UpdateManagerStats()
+                                    Dim newCode As String = ParkingData.GenerateCode()
+                                    Dim vTypeVal As String = DatabaseModule.GetSlotVehicleType(selectedSlot)
+                                    Dim rateVal As Decimal = If(DatabaseModule.IsCarSlot(selectedSlot), ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
+                                    Dim rateNameVal As String = "Standard"
+                                    Dim tellerID As Object = GetCurrentUserID("Teller", Form1.CurrentUsername)
 
-                            MessageBox.Show("Reservation successfully claimed! Vehicle is now checked in at slot " & selectedSlot, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                                    Dim insCmd As New MySqlCommand("INSERT INTO tblparkingrecord (code, PlateNumber, VehicleType, `Parking Slot`, RateName, Rate, Duration, `Paid Status`, CheckIn, ReservationID, CustomerID, TellerID, ProcessedByName) " &
+                                        "VALUES (@code, @plate, @vtype, @slot, @ratename, @rate, '0 hour(s)', 'Not Paid', @checkin, @resid, @custid, @tellid, @proc)", conn, tran)
+                                    insCmd.Parameters.AddWithValue("@code", newCode)
+                                    insCmd.Parameters.AddWithValue("@plate", newPlate)
+                                    insCmd.Parameters.AddWithValue("@vtype", vTypeVal)
+                                    insCmd.Parameters.AddWithValue("@slot", selectedSlot)
+                                    insCmd.Parameters.AddWithValue("@ratename", rateNameVal)
+                                    insCmd.Parameters.AddWithValue("@rate", rateVal)
+                                    insCmd.Parameters.AddWithValue("@checkin", DateTime.Now)
+                                    insCmd.Parameters.AddWithValue("@resid", resId)
+                                    insCmd.Parameters.AddWithValue("@custid", resCustId)
+                                    insCmd.Parameters.AddWithValue("@tellid", tellerID)
+                                    insCmd.Parameters.AddWithValue("@proc", Form1.CurrentFullName)
+                                    insCmd.ExecuteNonQuery()
 
-                            txtPlateNumber.Clear()
-                            cmbType.SelectedIndex = -1
-                            cboParkingSlots.SelectedIndex = -1
-                            lblSlotStatus.Text = "Status: -"
-                            lblSlotStatus.ForeColor = Color.Black
-                            RefreshParkedPlates()
-                            Exit Sub
+                                    tran.Commit()
+
+                                    DashBoardForm.LoadDataFromDatabase()
+                                    DashBoardForm.UpdateSlots()
+                                    UpdateManagerStats()
+                                    RefreshParkedPlates()
+
+                                    SuccessDialogForm.ShowSuccess($"Reservation claimed! Vehicle {newPlate} is checked in at slot {selectedSlot}.")
+
+                                    txtPlateNumber.Clear()
+                                    cmbType.SelectedIndex = -1
+                                    cboParkingSlots.SelectedIndex = -1
+                                    lblSlotStatus.Text = "Status: -"
+                                    lblSlotStatus.ForeColor = Color.Black
+                                    Exit Sub
+                                Catch exTran As Exception
+                                    tran.Rollback()
+                                    MessageBox.Show("Error claiming reservation: " & exTran.Message, "Transaction Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                    Exit Sub
+                                End Try
+                            End Using
                         Else
                             Exit Sub
                         End If
-                    ElseIf existing("PaidStatus").ToString() = "Not Paid" Then
-                        MessageBox.Show("Duplicate plate number is not possible.", "Duplicate Plate", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    End If
+
+                    ' 4. If no reservation for this plate: verify selected slot is not reserved today for someone else
+                    Dim checkOtherResCmd As New MySqlCommand("SELECT VehiclePlate FROM tblreservation WHERE ParkingSlot = @slot AND Status = 'Reserved' AND ReservationDate = @today", conn)
+                    checkOtherResCmd.Parameters.AddWithValue("@slot", selectedSlot)
+                    checkOtherResCmd.Parameters.AddWithValue("@today", DateTime.Today)
+                    Dim otherPlateObj = checkOtherResCmd.ExecuteScalar()
+                    If otherPlateObj IsNot Nothing Then
+                        MessageBox.Show($"Slot {selectedSlot} is reserved for another vehicle ({otherPlateObj}) today. Please choose a different slot.", "Slot Reserved", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                         Exit Sub
                     End If
-                End If
-            Next
-        End If
 
-        Dim confirmPark As New ConfirmActionDialogForm("Confirm Check-In", $"Are you sure you want to park plate '{newPlate}' at slot {selectedSlot}?", "YES")
-        If OverlayHelper.ShowDialog(Me, confirmPark) <> DialogResult.Yes Then
-            Exit Sub
-        End If
+                    ' 5. Confirm ordinary check-in
+                    Dim confirmPark As New ConfirmActionDialogForm("Confirm Check-In", $"Are you sure you want to park plate '{newPlate}' at slot {selectedSlot}?", "YES")
+                    If OverlayHelper.ShowDialog(Me, confirmPark) <> DialogResult.Yes Then
+                        Exit Sub
+                    End If
 
-        ParkingData.parkingDatabase(selectedSlot) = False
-        lblSlotStatus.Text = "UNAVAILABLE"
-        lblSlotStatus.ForeColor = ThemeManager.RedExit
+                    Dim newCodeOrd As String = ParkingData.GenerateCode()
+                    Dim vTypeValOrd As String = DatabaseModule.GetSlotVehicleType(selectedSlot)
+                    Dim rateValOrd As Decimal = If(DatabaseModule.IsCarSlot(selectedSlot), ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
+                    Dim rateNameValOrd As String = "Standard"
+                    Dim tellerIDOrd As Object = GetCurrentUserID("Teller", Form1.CurrentUsername)
 
-        Dim newCode As String = ParkingData.GenerateCode()
-        Dim checkInTime As DateTime = DateTime.Now
-        Dim vehicleTypeVal As String = If(cmbType.Text = "Car", "Four Wheels", "Two Wheels")
-        Dim rateNameVal As String = If(cmbType.Text = "Car", ParkingData.CarBaseRate & " per Hour", ParkingData.MotorBaseRate & " per Hour")
-        Dim rateVal As Double = If(cmbType.Text = "Car", ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
+                    Dim insOrdCmd As New MySqlCommand("INSERT INTO tblparkingrecord (code, PlateNumber, VehicleType, `Parking Slot`, RateName, Rate, Duration, `Paid Status`, CheckIn, CustomerID, TellerID, ProcessedByName) " &
+                        "VALUES (@code, @plate, @vtype, @slot, @ratename, @rate, '0 hour(s)', 'Not Paid', @checkin, @custid, @tellid, @proc)", conn)
+                    insOrdCmd.Parameters.AddWithValue("@code", newCodeOrd)
+                    insOrdCmd.Parameters.AddWithValue("@plate", newPlate)
+                    insOrdCmd.Parameters.AddWithValue("@vtype", vTypeValOrd)
+                    insOrdCmd.Parameters.AddWithValue("@slot", selectedSlot)
+                    insOrdCmd.Parameters.AddWithValue("@ratename", rateNameValOrd)
+                    insOrdCmd.Parameters.AddWithValue("@rate", rateValOrd)
+                    insOrdCmd.Parameters.AddWithValue("@checkin", DateTime.Now)
+                    insOrdCmd.Parameters.AddWithValue("@custid", DBNull.Value)
+                    insOrdCmd.Parameters.AddWithValue("@tellid", tellerIDOrd)
+                    insOrdCmd.Parameters.AddWithValue("@proc", Form1.CurrentFullName)
+                    insOrdCmd.ExecuteNonQuery()
 
-        Dim newRow As DataRow = ParkingData.ParkingTable.NewRow()
-        newRow("Code") = newCode
-        newRow("PlateNumber") = txtPlateNumber.Text.ToUpper()
-        newRow("CheckIn") = checkInTime
-        newRow("CheckOut") = DBNull.Value
-        newRow("VehicleType") = vehicleTypeVal
-        newRow("RateName") = rateNameVal
-        newRow("Rate") = rateVal
-        newRow("Slot") = selectedSlot
-        newRow("TotalTime") = "0 hour(s)"
-        newRow("TotalAmount") = DBNull.Value
-        newRow("PaidStatus") = "Not Paid"
+                    DashBoardForm.LoadDataFromDatabase()
+                    DashBoardForm.UpdateSlots()
+                    UpdateManagerStats()
+                    RefreshParkedPlates()
 
-        ParkingData.ParkingTable.Rows.Add(newRow)
+                    SuccessDialogForm.ShowSuccess($"{cmbType.Text} successfully parked at slot {selectedSlot}.")
 
-        ' --- LocalDb Sync: I-insert sa LocalStore (`tblparkingrecord`) ---
-        Try
-            Dim tellerID As Object = DBNull.Value
-            Dim customerID As Object = DBNull.Value
-
-            If Form1.CurrentUserRole = "Teller" Then
-                tellerID = GetCurrentUserID("Teller", Form1.CurrentUsername)
-            ElseIf Form1.CurrentUserRole = "Customer" Then
-                customerID = GetCurrentUserID("Customer", Form1.CurrentUsername)
-            End If
-
-            Using conn As LocalDbConnection = GetConnection()
-                If conn IsNot Nothing Then
-                    Dim insCmd As New LocalDbCommand("INSERT INTO tblparkingrecord (code, PlateNumber, VehicleType, `Parking Slot`, CheckIn, RateName, Rate, Duration, `Paid Status`, CustomerID, TellerID) " &
-                        "VALUES (@code, @plate, @vtype, @slot, @checkin, @ratename, @rate, @totaltime, @paidstatus, @custid, @tellid)", conn)
-                    insCmd.Parameters.AddWithValue("@code", newCode)
-                    insCmd.Parameters.AddWithValue("@plate", txtPlateNumber.Text.ToUpper())
-                    insCmd.Parameters.AddWithValue("@vtype", vehicleTypeVal)
-                    insCmd.Parameters.AddWithValue("@slot", selectedSlot)
-                    insCmd.Parameters.AddWithValue("@checkin", checkInTime)
-                    insCmd.Parameters.AddWithValue("@ratename", rateNameVal)
-                    insCmd.Parameters.AddWithValue("@rate", rateVal)
-                    insCmd.Parameters.AddWithValue("@totaltime", "0 hour(s)")
-                    insCmd.Parameters.AddWithValue("@paidstatus", "Not Paid")
-                    insCmd.Parameters.AddWithValue("@custid", customerID)
-                    insCmd.Parameters.AddWithValue("@tellid", tellerID)
-                    insCmd.ExecuteNonQuery()
+                    txtPlateNumber.Clear()
+                    cmbType.SelectedIndex = -1
+                    cboParkingSlots.SelectedIndex = -1
+                    lblSlotStatus.Text = "Status: -"
+                    lblSlotStatus.ForeColor = Color.Black
                 End If
             End Using
-        Catch ex As LocalDbException
-            MessageBox.Show("Warning: Hindi na-sync sa database. " & ex.Message, "Database Sync Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        Catch ex As Exception
+            MessageBox.Show("Error processing check-in: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
-
-        If Form1.CurrentUserRole = "Teller" Then
-            frmadmindashboard.UpdateSlots()
-        Else
-            DashBoardForm.UpdateSlots()
-        End If
-        DataStore.SaveDatabase()
-
-        SuccessDialogForm.ShowSuccess(cmbType.Text & " successfully parked at slot " & cboParkingSlots.Text)
-
-        txtPlateNumber.Clear()
-        cmbType.SelectedIndex = -1
-        cboParkingSlots.SelectedIndex = -1
-        lblSlotStatus.Text = "Status: -"
-        lblSlotStatus.ForeColor = Color.Black
-
-        UpdateManagerStats()
-        RefreshParkedPlates()
     End Sub
 
     Private Sub btnSearch_Click(sender As Object, e As EventArgs) Handles btnSearch.Click
@@ -373,19 +377,18 @@ Public Class ParkingManagerForm
         If foundRow IsNot Nothing Then
             Dim timeIn As DateTime = Convert.ToDateTime(foundRow("CheckIn"))
             Dim hours As Double = Math.Ceiling((DateTime.Now - timeIn).TotalHours)
-
             If hours < 1 Then hours = 1
 
             Dim isCar As Boolean = (foundRow("VehicleType").ToString() = "Four Wheels")
-            Dim baseRate As Double = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
-            Dim succeedingRate As Double = If(isCar, ParkingData.CarSucceedingRate, ParkingData.MotorSucceedingRate)
+            Dim baseRate As Decimal = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
+            Dim succeedingRate As Decimal = If(isCar, ParkingData.CarSucceedingRate, ParkingData.MotorSucceedingRate)
 
-            Dim totalCalculatedFee As Double = baseRate
+            Dim totalCalculatedFee As Decimal = baseRate
             If hours > ParkingData.FreeHours Then
-                totalCalculatedFee = baseRate + ((hours - ParkingData.FreeHours) * succeedingRate)
+                totalCalculatedFee = baseRate + (Convert.ToDecimal(hours - ParkingData.FreeHours) * succeedingRate)
             End If
 
-            penaltyAmount = 0.0
+            penaltyAmount = 0D
             Dim slotName As String = foundRow("Slot").ToString()
             For Each row As DataRow In ParkingData.ParkingTable.Rows
                 If row("Slot").ToString() = slotName AndAlso row("PaidStatus").ToString() = "Reserved" Then
@@ -399,9 +402,9 @@ Public Class ParkingManagerForm
             totalCalculatedFee += penaltyAmount
 
             If cmbDiscount.Text = "PWD" Then
-                currentFee = 0.0
+                currentFee = 0D
             ElseIf cmbDiscount.Text = "Senior Citizen" Then
-                currentFee = totalCalculatedFee * 0.8
+                currentFee = Math.Round(totalCalculatedFee * 0.8D, 2)
             Else
                 currentFee = totalCalculatedFee
             End If
@@ -422,21 +425,25 @@ Public Class ParkingManagerForm
 
         CalculateAndDisplayFee()
 
-        Dim cashPaid As Double = 0.0
-
-        If Not Double.TryParse(txtAmountPaid.Text, cashPaid) OrElse cashPaid < 0 Then
+        Dim cashPaid As Decimal = 0D
+        If Not Decimal.TryParse(txtAmountPaid.Text, cashPaid) OrElse cashPaid < 0D Then
             MessageBox.Show("Please enter a valid numeric payment amount.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
         If cashPaid < currentFee Then
-            Dim shortage As Double = currentFee - cashPaid
+            Dim shortage As Decimal = currentFee - cashPaid
             MessageBox.Show("Insufficient payment! The customer still owes ₱" & shortage.ToString("F2"), "Payment Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
         End If
 
-        Dim calculatedChange As Double = cashPaid - currentFee
+        Dim calculatedChange As Decimal = cashPaid - currentFee
         lblChange.Text = "Change: ₱" & calculatedChange.ToString("F2")
+
+        Dim confirmPay As New ConfirmActionDialogForm("Process Payment", $"Confirm payment of ₱{currentFee.ToString("F2")} for plate '{foundRow("PlateNumber")}'?", "YES")
+        If OverlayHelper.ShowDialog(Me, confirmPay) <> DialogResult.Yes Then
+            Exit Sub
+        End If
 
         Dim timeIn As DateTime = Convert.ToDateTime(foundRow("CheckIn"))
         Dim timeOut As DateTime = DateTime.Now
@@ -447,85 +454,74 @@ Public Class ParkingManagerForm
         Dim timeInStr As String = timeIn.ToString("hh:mm tt")
         Dim timeOutStr As String = timeOut.ToString("hh:mm tt")
         Dim hoursStr As String = hours & " hr(s)"
-
         Dim isCar As Boolean = (foundRow("VehicleType").ToString() = "Four Wheels")
-        Dim baseRate As Double = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
+        Dim baseRate As Decimal = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
         Dim baseStr As String = "₱" & baseRate.ToString("F2") & " / hr"
-
         Dim discountStr As String = cmbDiscount.Text
         If discountStr = "None" Then discountStr = "-"
 
-        Dim checkoutDlg As New CheckoutDialog(plateStr, timeInStr, timeOutStr, hoursStr, baseStr, discountStr, penaltyAmount.ToString("F2"), currentFee.ToString("F2"), cashPaid.ToString("F2"), calculatedChange.ToString("F2"))
+        Dim transId As Object = foundRow("TransactionID")
+        Dim recordCode As String = foundRow("Code").ToString()
+        Dim processedTellerID As Object = GetCurrentUserID("Teller", Form1.CurrentUsername)
 
-        If OverlayHelper.ShowDialog(Me, checkoutDlg) = DialogResult.OK Then
-            Dim recordCode As String = foundRow("Code").ToString()
-
-            foundRow("CheckOut") = timeOut
-            foundRow("TotalAmount") = currentFee
-            foundRow("TotalTime") = hours & " hour(s)"
-            foundRow("PaidStatus") = "Paid"
-            foundRow("ProcessedBy") = Form1.CurrentFullName
-
-            ' --- LocalDb Sync: I-update sa LocalStore bilang 'Paid' ---
-            Try
-                Dim processedTellerID As Object = DBNull.Value
-                If Form1.CurrentUserRole = "Teller" Then
-                    processedTellerID = GetCurrentUserID("Teller", Form1.CurrentUsername)
-                End If
-
-                Using conn As LocalDbConnection = GetConnection()
-                    If conn IsNot Nothing Then
-                        Dim updCmd As New LocalDbCommand("UPDATE tblparkingrecord SET CheckOut = @checkout, TotalAmount = @amount, Duration = @time, `Paid Status` = 'Paid', TellerID = @tellid WHERE code = @code", conn)
-                        updCmd.Parameters.AddWithValue("@checkout", timeOut)
-                        updCmd.Parameters.AddWithValue("@amount", currentFee)
-                        updCmd.Parameters.AddWithValue("@time", hours & " hour(s)")
-                        updCmd.Parameters.AddWithValue("@tellid", processedTellerID)
-                        updCmd.Parameters.AddWithValue("@code", recordCode)
-                        updCmd.ExecuteNonQuery()
+        ' Commit payment to database first
+        Try
+            Using conn As MySqlConnection = GetConnection()
+                If conn IsNot Nothing Then
+                    Dim updCmd As New MySqlCommand("UPDATE tblparkingrecord SET CheckOut = @checkout, TotalAmount = @amount, Duration = @time, `Paid Status` = 'Paid', DiscountType = @disc, PenaltyAmount = @pen, AmountPaid = @paid, ChangeAmount = @change, ProcessedByName = @proc, TellerID = @tellid WHERE TransactionID = @transId", conn)
+                    updCmd.Parameters.AddWithValue("@checkout", timeOut)
+                    updCmd.Parameters.AddWithValue("@amount", currentFee)
+                    updCmd.Parameters.AddWithValue("@time", hoursStr)
+                    updCmd.Parameters.AddWithValue("@disc", If(cmbDiscount.Text = "None", DBNull.Value, CObj(cmbDiscount.Text)))
+                    updCmd.Parameters.AddWithValue("@pen", penaltyAmount)
+                    updCmd.Parameters.AddWithValue("@paid", cashPaid)
+                    updCmd.Parameters.AddWithValue("@change", calculatedChange)
+                    updCmd.Parameters.AddWithValue("@proc", Form1.CurrentFullName)
+                    updCmd.Parameters.AddWithValue("@tellid", processedTellerID)
+                    updCmd.Parameters.AddWithValue("@transId", transId)
+                    Dim affected As Integer = updCmd.ExecuteNonQuery()
+                    If affected = 0 Then
+                        MessageBox.Show("Record could not be updated or was already checked out.", "Payment Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        Exit Sub
                     End If
-                End Using
-            Catch ex As LocalDbException
-                MessageBox.Show("Warning: Hindi na-sync sa database. " & ex.Message, "Database Sync Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            End Try
+                End If
+            End Using
+        Catch ex As Exception
+            MessageBox.Show("Payment transaction failed: " & ex.Message, "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End Try
 
-            If Form1.CurrentUserRole = "Teller" Then
-                frmadmindashboard.UpdateSlots()
-            Else
-                DashBoardForm.UpdateSlots()
-            End If
+        DashBoardForm.LoadDataFromDatabase()
+        DashBoardForm.UpdateSlots()
+        UpdateManagerStats()
 
-            Dim freedSlot As String = foundRow("Slot").ToString()
+        ' Show final receipt dialog after database commit
+        Dim checkoutDlg As New CheckoutDialog(plateStr, timeInStr, timeOutStr, hoursStr, baseStr, discountStr, penaltyAmount.ToString("F2"), currentFee.ToString("F2"), cashPaid.ToString("F2"), calculatedChange.ToString("F2"))
+        OverlayHelper.ShowDialog(Me, checkoutDlg)
 
-            If ParkingData.parkingDatabase.ContainsKey(freedSlot) Then
-                ParkingData.parkingDatabase(freedSlot) = True
-            End If
-
-            DataStore.SaveDatabase()
-
-            cboSearchPlate.Items.Remove(plateStr)
-            If cboSearchPlate.AutoCompleteCustomSource.Contains(plateStr) Then
-                cboSearchPlate.AutoCompleteCustomSource.Remove(plateStr)
-            End If
-
-            cboSearchPlate.SelectedIndex = -1
-            cboSearchPlate.Text = ""
-            txtAmountPaid.Clear()
-            lblFee.Text = "Total Fee: ₱0.00"
-            lblChange.Text = "Change: ₱0.00"
-            cmbDiscount.SelectedIndex = 0
-            foundRow = Nothing
-            currentFee = 0.0
-
-            RefreshParkedPlates()
+        cboSearchPlate.Items.Remove(plateStr)
+        If cboSearchPlate.AutoCompleteCustomSource.Contains(plateStr) Then
+            cboSearchPlate.AutoCompleteCustomSource.Remove(plateStr)
         End If
+
+        cboSearchPlate.SelectedIndex = -1
+        cboSearchPlate.Text = ""
+        txtAmountPaid.Clear()
+        lblFee.Text = "Total Fee: ₱0.00"
+        lblChange.Text = "Change: ₱0.00"
+        cmbDiscount.SelectedIndex = 0
+        foundRow = Nothing
+        currentFee = 0D
+        penaltyAmount = 0D
+
+        RefreshParkedPlates()
     End Sub
 
     Private Sub btnExit_Click(sender As Object, e As EventArgs) Handles btnExit.Click
-        If Form1.CurrentUserRole = "Teller" Then
-            frmadmindashboard.Show()
-        Else
-            DashBoardForm.Show()
-        End If
+        DashBoardForm.ShowLobbyMode = False
+        DashBoardForm.LoadDataFromDatabase()
+        DashBoardForm.UpdateSlots()
+        DashBoardForm.Show()
         Me.Close()
     End Sub
 End Class

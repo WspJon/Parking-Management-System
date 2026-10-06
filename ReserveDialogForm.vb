@@ -22,10 +22,12 @@ Public Class ReserveDialogForm
         ThemeManager.MakeRoundedControl(btnCancel, 6)
         ThemeManager.MakeRoundedControl(btnConfirm, 6)
 
+        txtPlate.MaxLength = 8
         SendMessage(txtPlate.Handle, EM_SETCUEBANNER, 0, "Enter plate number")
         SendMessage(txtName.Handle, EM_SETCUEBANNER, 0, "Enter customer name")
         If Form1.CurrentUserRole = "Customer" Then
             txtName.Text = Form1.CurrentFullName
+            txtName.ReadOnly = True
         End If
         
         dtpDate.MinDate = DateTime.Now
@@ -41,14 +43,18 @@ Public Class ReserveDialogForm
     End Sub
 
     Private Sub btnConfirm_Click(sender As Object, e As EventArgs) Handles btnConfirm.Click
-        If String.IsNullOrWhiteSpace(txtPlate.Text) Then
+        Dim normalizedPlate As String = DatabaseModule.NormalizePlate(txtPlate.Text)
+        If String.IsNullOrWhiteSpace(normalizedPlate) Then
             MessageBox.Show("Please enter a plate number.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-        ElseIf txtPlate.Text.Trim().Length < 4 OrElse txtPlate.Text.Trim().Length > 8 Then
-            MessageBox.Show("Plate number must be 4 to 8 characters!", "Invalid Plate", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        ElseIf Not DatabaseModule.IsValidPlate(normalizedPlate) Then
+            MessageBox.Show("Plate number must be between 4 and 8 alphanumeric characters!", "Invalid Plate", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
         ElseIf String.IsNullOrWhiteSpace(txtName.Text) Then
-            MessageBox.Show("Please enter the reserver's name.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show("Please enter the customer name.", "Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
         Else
-            Me.PlateNumber = txtPlate.Text.Trim().ToUpper()
+            Me.PlateNumber = normalizedPlate
             Me.ReserverName = txtName.Text.Trim()
             Me.ReservationDate = dtpDate.Value.Date
             Me.DialogResult = DialogResult.OK

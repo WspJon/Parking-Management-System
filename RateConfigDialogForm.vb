@@ -24,17 +24,48 @@ Public Class RateConfigDialogForm
     End Sub
 
     Private Sub btnSave_Click(sender As Object, e As EventArgs) Handles btnSave.Click
-        Try
-            ParkingData.CarBaseRate = Convert.ToDouble(txtCarBase.Text)
-            ParkingData.MotorBaseRate = Convert.ToDouble(txtMotorBase.Text)
-            ParkingData.CarSucceedingRate = Convert.ToDouble(txtCarSucceeding.Text)
-            ParkingData.MotorSucceedingRate = Convert.ToDouble(txtMotorSucceeding.Text)
-            ParkingData.FreeHours = Convert.ToInt32(txtFreeHours.Text)
-            DataStore.SaveRates()
+        Dim carBase As Decimal
+        Dim motorBase As Decimal
+        Dim carSucc As Decimal
+        Dim motorSucc As Decimal
+        Dim freeHrs As Integer
+
+        If Not Decimal.TryParse(txtCarBase.Text.Trim(), carBase) OrElse carBase < 0D Then
+            MessageBox.Show("Please enter a valid non-negative Car Base Rate.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtCarBase.Focus()
+            Return
+        End If
+
+        If Not Decimal.TryParse(txtMotorBase.Text.Trim(), motorBase) OrElse motorBase < 0D Then
+            MessageBox.Show("Please enter a valid non-negative Motor Base Rate.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtMotorBase.Focus()
+            Return
+        End If
+
+        If Not Decimal.TryParse(txtCarSucceeding.Text.Trim(), carSucc) OrElse carSucc < 0D Then
+            MessageBox.Show("Please enter a valid non-negative Car Succeeding Rate.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtCarSucceeding.Focus()
+            Return
+        End If
+
+        If Not Decimal.TryParse(txtMotorSucceeding.Text.Trim(), motorSucc) OrElse motorSucc < 0D Then
+            MessageBox.Show("Please enter a valid non-negative Motor Succeeding Rate.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtMotorSucceeding.Focus()
+            Return
+        End If
+
+        If Not Integer.TryParse(txtFreeHours.Text.Trim(), freeHrs) OrElse freeHrs < 0 Then
+            MessageBox.Show("Please enter a valid non-negative integer for Base/Free Hours.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtFreeHours.Focus()
+            Return
+        End If
+
+        Dim saved As Boolean = DatabaseModule.SaveRatesToDatabase(carBase, motorBase, carSucc, motorSucc, freeHrs, ParkingData.OverstayPenaltyFee)
+        If saved Then
             Me.DialogResult = DialogResult.OK
             Me.Close()
-        Catch ex As Exception
-            MessageBox.Show("Please enter valid numbers for all fields.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-        End Try
+        Else
+            MessageBox.Show("Could not save rates to the database. Please check your database connection.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End If
     End Sub
 End Class

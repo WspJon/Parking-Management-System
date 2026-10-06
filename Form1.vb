@@ -10,7 +10,7 @@ Public Class Form1
     Public Shared CurrentUsername As String = ""
     Public Shared CurrentFullName As String = ""
 
-    Private connStr As String = "Server=127.0.0.1;Database=parkingdb;Uid=root;Pwd=;"
+    Private connStr As String = DatabaseModule.connStr
 
     <DllImport("user32.dll", CharSet:=CharSet.Auto)>
     Private Shared Function SendMessage(
@@ -59,21 +59,6 @@ Public Class Form1
 
         End If
 
-        '=====================================================
-        ' ADMIN LOGIN
-        '=====================================================
-        If username = "admin" AndAlso password = "1234" Then
-
-            CurrentUserRole = "Admin"
-            CurrentUsername = "admin"
-            CurrentFullName = "Administrator"
-
-            OpenDashboard()
-
-            Return
-
-        End If
-
         Try
 
             Dim loginSuccessful As Boolean = False
@@ -85,15 +70,15 @@ Public Class Form1
                 conn.Open()
 
                 '=================================================
-                ' CHECK CUSTOMER
+                ' CHECK ADMIN (tbladmin or default admin/1234)
                 '=================================================
-                Dim customerQuery As String =
-                    "SELECT Fullname, Username, Password, Status " &
-                    "FROM tblcustomer " &
+                Dim adminQuery As String =
+                    "SELECT FullName, Username, Password, Status " &
+                    "FROM tbladmin " &
                     "WHERE Username = @Username " &
                     "LIMIT 1"
 
-                Using cmd As New MySqlCommand(customerQuery, conn)
+                Using cmd As New MySqlCommand(adminQuery, conn)
 
                     cmd.Parameters.AddWithValue("@Username", username)
 
@@ -101,50 +86,76 @@ Public Class Form1
 
                         If reader.Read() Then
 
-                            Dim dbPassword As String =
-                                reader("Password").ToString()
+                            Dim dbPassword As String = reader("Password").ToString()
+                            Dim status As String = reader("Status").ToString()
 
-                            Dim status As String =
-                                reader("Status").ToString()
-
-                            ' Status 1 = Active
                             If status <> "1" Then
-
-                                MessageBox.Show(
-                                    "This account is not active.",
-                                    "Login Failed",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Warning
-                                )
-
+                                MessageBox.Show("This admin account is not active.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                                 Return
-
                             End If
 
                             If dbPassword = password Then
-
                                 loginSuccessful = True
-                                role = "Customer"
-                                fullName = reader("Fullname").ToString()
-
+                                role = "Admin"
+                                fullName = If(reader("FullName") IsNot DBNull.Value AndAlso reader("FullName").ToString() <> "", reader("FullName").ToString(), "Administrator")
                             Else
-
-                                MessageBox.Show(
-                                    "Invalid password.",
-                                    "Login Failed",
-                                    MessageBoxButtons.OK,
-                                    MessageBoxIcon.Warning
-                                )
-
+                                MessageBox.Show("Invalid password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                                 Return
-
                             End If
 
+                        ElseIf username = "admin" AndAlso password = "1234" Then
+                            loginSuccessful = True
+                            role = "Admin"
+                            fullName = "Administrator"
                         End If
 
                     End Using
 
                 End Using
+
+                '=================================================
+                ' CHECK CUSTOMER
+                '=================================================
+                If Not loginSuccessful Then
+
+                    Dim customerQuery As String =
+                        "SELECT Fullname, Username, Password, Status " &
+                        "FROM tblcustomer " &
+                        "WHERE Username = @Username " &
+                        "LIMIT 1"
+
+                    Using cmd As New MySqlCommand(customerQuery, conn)
+
+                        cmd.Parameters.AddWithValue("@Username", username)
+
+                        Using reader As MySqlDataReader = cmd.ExecuteReader()
+
+                            If reader.Read() Then
+
+                                Dim dbPassword As String = reader("Password").ToString()
+                                Dim status As String = reader("Status").ToString()
+
+                                If status <> "1" Then
+                                    MessageBox.Show("This account is not active.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                    Return
+                                End If
+
+                                If dbPassword = password Then
+                                    loginSuccessful = True
+                                    role = "Customer"
+                                    fullName = reader("Fullname").ToString()
+                                Else
+                                    MessageBox.Show("Invalid password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                    Return
+                                End If
+
+                            End If
+
+                        End Using
+
+                    End Using
+
+                End If
 
                 '=================================================
                 ' CHECK TELLER
@@ -165,43 +176,21 @@ Public Class Form1
 
                             If reader.Read() Then
 
-                                Dim dbPassword As String =
-                                    reader("Password").ToString()
+                                Dim dbPassword As String = reader("Password").ToString()
+                                Dim status As String = reader("Status").ToString()
 
-                                Dim status As String =
-                                    reader("Status").ToString()
-
-                                ' Status 1 = Active
                                 If status <> "1" Then
-
-                                    MessageBox.Show(
-                                        "This account is not active.",
-                                        "Login Failed",
-                                        MessageBoxButtons.OK,
-                                        MessageBoxIcon.Warning
-                                    )
-
+                                    MessageBox.Show("This account is not active.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                                     Return
-
                                 End If
 
                                 If dbPassword = password Then
-
                                     loginSuccessful = True
                                     role = "Teller"
                                     fullName = reader("FullName").ToString()
-
                                 Else
-
-                                    MessageBox.Show(
-                                        "Invalid password.",
-                                        "Login Failed",
-                                        MessageBoxButtons.OK,
-                                        MessageBoxIcon.Warning
-                                    )
-
+                                    MessageBox.Show("Invalid password.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                                     Return
-
                                 End If
 
                             End If
@@ -287,21 +276,29 @@ Public Class Form1
 
         End Using
 
+        DatabaseModule.LoadRatesFromDatabase()
+
         If CurrentUserRole = "Customer" Then
 
             DashBoardForm.ShowLobbyMode = True
+            DashBoardForm.ConfigureRoleInterface()
+            DashBoardForm.LoadDataFromDatabase()
             DashBoardForm.UpdateSlots()
             DashBoardForm.Show()
 
         ElseIf CurrentUserRole = "Teller" Then
 
-            frmadmindashboard.ShowLobbyMode = False
-            frmadmindashboard.UpdateSlots()
-            frmadmindashboard.Show()
+            DashBoardForm.ShowLobbyMode = False
+            DashBoardForm.ConfigureRoleInterface()
+            DashBoardForm.LoadDataFromDatabase()
+            DashBoardForm.UpdateSlots()
+            DashBoardForm.Show()
 
         ElseIf CurrentUserRole = "Admin" Then
 
             DashBoardForm.ShowLobbyMode = False
+            DashBoardForm.ConfigureRoleInterface()
+            DashBoardForm.LoadDataFromDatabase()
             DashBoardForm.UpdateSlots()
             DashBoardForm.Show()
 

@@ -4,7 +4,7 @@ Imports MySql.Data.MySqlClient
 
 Public Class frmaddteller
 
-    Private connStr As String = "Server=127.0.0.1;Database=parkingdb;Uid=root;Pwd=;"
+    Private connStr As String = DatabaseModule.connStr
 
     Private Sub frmaddteller_Load(sender As Object, e As EventArgs) Handles Me.Load
 
@@ -116,13 +116,15 @@ Public Class frmaddteller
 
                 '-------------------------------------------------
                 ' CHECK IF USERNAME ALREADY EXISTS
-                ' IN TELLER OR CUSTOMER
+                ' IN TELLER, CUSTOMER, OR ADMIN
                 '-------------------------------------------------
 
                 Dim checkQuery As String =
                     "SELECT COUNT(*) FROM tblteller WHERE Username = @Username " &
                     "UNION ALL " &
-                    "SELECT COUNT(*) FROM tblcustomer WHERE Username = @Username"
+                    "SELECT COUNT(*) FROM tblcustomer WHERE Username = @Username " &
+                    "UNION ALL " &
+                    "SELECT COUNT(*) FROM tbladmin WHERE Username = @Username"
 
                 Using checkCmd As New MySqlCommand(checkQuery, conn)
 

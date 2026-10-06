@@ -30,7 +30,9 @@ Public Class CheckoutDialog
         lblTotalHoursValue.Text = totalHours
         lblBaseRateValue.Text = baseRate
         lblDiscountValue.Text = discount
-        lblPenaltyValue.Text = If(CDbl(_penalty) > 0, "₱" & penalty, "-")
+        Dim parsedPenalty As Decimal = 0D
+        Decimal.TryParse(_penalty, parsedPenalty)
+        lblPenaltyValue.Text = If(parsedPenalty > 0D, "₱" & penalty, "-")
         lblAmountDueValue.Text = "₱" & amountDue
         lblAmountPaidValue.Text = "₱" & cashTendered
         lblChangeValue.Text = "₱" & change
@@ -55,30 +57,34 @@ Public Class CheckoutDialog
                 sfd.Filter = "Text File (*.txt)|*.txt"
                 sfd.FileName = "Receipt_" & _plateNumber & "_" & DateTime.Now.ToString("yyyyMMdd_HHmmss") & ".txt"
                 If sfd.ShowDialog() = DialogResult.OK Then
-                    Dim sb As New System.Text.StringBuilder()
-                    sb.AppendLine("========================================")
-                    sb.AppendLine("        PARKING SYSTEM RECEIPT")
-                    sb.AppendLine("========================================")
-                    sb.AppendLine($"Date:          {DateTime.Now.ToString("yyyy-MM-dd")}")
-                    sb.AppendLine($"Plate Number:  {_plateNumber}")
-                    sb.AppendLine("----------------------------------------")
-                    sb.AppendLine($"Time In:       {_timeIn}")
-                    sb.AppendLine($"Time Out:      {_timeOut}")
-                    sb.AppendLine($"Duration:      {_duration}")
-                    sb.AppendLine($"Base Rate:     {_baseRate}")
-                    sb.AppendLine($"Discount:      {_discount}")
-                    If CDbl(_penalty) > 0 Then
-                        sb.AppendLine($"Penalty:       ₱{_penalty}")
-                    End If
-                    sb.AppendLine("----------------------------------------")
-                    sb.AppendLine($"Total Due:     ₱{_totalDue}")
-                    sb.AppendLine($"Amount Paid:   ₱{_amountPaid}")
-                    sb.AppendLine($"Change:        ₱{_change}")
-                    sb.AppendLine("========================================")
-                    sb.AppendLine("       Thank you for parking!")
-                    sb.AppendLine("========================================")
-                    System.IO.File.WriteAllText(sfd.FileName, sb.ToString())
-                    MessageBox.Show("Receipt saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Try
+                        Dim sb As New System.Text.StringBuilder()
+                        sb.AppendLine("========================================")
+                        sb.AppendLine("        PARKING SYSTEM RECEIPT")
+                        sb.AppendLine("========================================")
+                        sb.AppendLine($"Date:          {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}")
+                        sb.AppendLine($"Plate Number:  {_plateNumber}")
+                        sb.AppendLine("----------------------------------------")
+                        sb.AppendLine($"Time In:       {_timeIn}")
+                        sb.AppendLine($"Time Out:      {_timeOut}")
+                        sb.AppendLine($"Duration:      {_duration}")
+                        sb.AppendLine($"Base Rate:     {_baseRate}")
+                        sb.AppendLine($"Discount:      {_discount}")
+                        If parsedPenalty > 0D Then
+                            sb.AppendLine($"Penalty:       ₱{_penalty}")
+                        End If
+                        sb.AppendLine("----------------------------------------")
+                        sb.AppendLine($"Total Due:     ₱{_totalDue}")
+                        sb.AppendLine($"Amount Paid:   ₱{_amountPaid}")
+                        sb.AppendLine($"Change:        ₱{_change}")
+                        sb.AppendLine("========================================")
+                        sb.AppendLine("       Thank you for parking!")
+                        sb.AppendLine("========================================")
+                        System.IO.File.WriteAllText(sfd.FileName, sb.ToString())
+                        MessageBox.Show("Receipt saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    Catch ex As Exception
+                        MessageBox.Show("Failed to save receipt file: " & ex.Message, "File Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    End Try
                 End If
             End Using
         End Sub

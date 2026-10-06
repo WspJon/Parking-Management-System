@@ -60,27 +60,8 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System.Resources.Extensions">
-      <HintPath>C:\Users\reale\.nuget\packages\system.resources.extensions\4.6.0\lib\netstandard2.0\System.Resources.Extensions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Memory">
-      <HintPath>C:\Users\reale\.nuget\packages\system.memory\4.6.3\lib\net462\System.Memory.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Buffers">
-      <HintPath>C:\Users\reale\.nuget\packages\system.buffers\4.6.1\lib\net462\System.Buffers.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>C:\Users\reale\.nuget\packages\system.runtime.compilerservices.unsafe\6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Numerics.Vectors">
-      <HintPath>C:\Users\reale\.nuget\packages\system.numerics.vectors\4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>$(PkgSystem_Resources_Extensions)\lib\netstandard2.0\System.Resources.Extensions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -136,7 +117,6 @@
     </Compile>
     <Compile Include="DataStore.vb" />
     <Compile Include="dbConnect.vb" />
-    <Compile Include="LocalDbCompat.vb" />
     <Compile Include="ReserveDialogForm.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -170,13 +150,6 @@
     </Compile>
     <Compile Include="Form1.Designer.vb">
       <DependentUpon>Form1.vb</DependentUpon>
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmadmindashboard.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmadmindashboard.Designer.vb">
-      <DependentUpon>frmadmindashboard.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -217,9 +190,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmaddteller.resx">
       <DependentUpon>frmaddteller.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmadmindashboard.resx">
-      <DependentUpon>frmadmindashboard.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.vb</DependentUpon>
@@ -263,9 +233,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MySql.Data">
-      <Version>26.7.0</Version>
-    </PackageReference>
+    <PackageReference Include="MySql.Data" Version="9.2.0" />
+    <PackageReference Include="System.Resources.Extensions" Version="4.6.0" GeneratePathProperty="true" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

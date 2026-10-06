@@ -6,8 +6,7 @@ Imports MySql.Data.MySqlClient
 Public Class RegisterForm
     Inherits Form
 
-    Private ReadOnly connStr As String =
-        "Server=127.0.0.1;Database=parkingdb;Uid=root;Pwd=;"
+    Private ReadOnly connStr As String = DatabaseModule.connStr
 
     Public Sub New()
 
@@ -192,14 +191,16 @@ Public Class RegisterForm
 
                 '================================================
                 ' CHECK IF USERNAME ALREADY EXISTS
-                ' IN CUSTOMER OR TELLER
+                ' IN CUSTOMER, TELLER, OR ADMIN
                 '================================================
                 Dim checkQuery As String =
                     "SELECT COUNT(*) " &
                     "FROM (" &
                     "SELECT Username FROM tblcustomer " &
                     "UNION ALL " &
-                    "SELECT Username FROM tblteller" &
+                    "SELECT Username FROM tblteller " &
+                    "UNION ALL " &
+                    "SELECT Username FROM tbladmin" &
                     ") AS users " &
                     "WHERE Username = @Username"
 
