@@ -524,4 +524,28 @@ Public Class ParkingManagerForm
         DashBoardForm.Show()
         Me.Close()
     End Sub
+
+    ' Auto-calculate change kapag nagse-type sa Amount Paid text box
+    Private Sub txtAmountPaid_TextChanged(sender As Object, e As EventArgs) Handles txtAmountPaid.TextChanged
+        Dim cashPaid As Decimal = 0D
+
+        If Decimal.TryParse(txtAmountPaid.Text, cashPaid) Then
+            If cashPaid >= currentFee Then
+                Dim calculatedChange As Decimal = cashPaid - currentFee
+                lblChange.Text = "Change: ₱" & calculatedChange.ToString("F2")
+                lblChange.ForeColor = Color.Black
+            Else
+                Dim shortage As Decimal = currentFee - cashPaid
+                lblChange.Text = "Change: ₱0.00 (Short: ₱" & shortage.ToString("F2") & ")"
+                lblChange.ForeColor = ThemeManager.RedExit
+            End If
+        Else
+            lblChange.Text = "Change: ₱0.00"
+            lblChange.ForeColor = Color.Black
+        End If
+    End Sub
+
+    Private Sub lblChange_Click(sender As Object, e As EventArgs) Handles lblChange.Click
+    End Sub
+
 End Class

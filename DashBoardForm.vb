@@ -71,7 +71,43 @@ Public Class DashBoardForm
         End Try
     End Sub
 
+    ' Automatic na nagpapalit ng Status sa 'Expired' kapag lumampas na ng 15 mins ang StartTime
+    Private Sub ExpireOutdatedReservations()
+        Try
+            Using conn As MySqlConnection = GetConnection()
+                If conn IsNot Nothing Then
+                    Dim dt As New DataTable()
+                    Dim query As String = "SELECT ReservationID, ReservationDate, StartTime FROM tblreservation WHERE Status = 'Reserved'"
+                    Using adapter As New MySqlDataAdapter(query, conn)
+                        adapter.Fill(dt)
+                    End Using
+
+                    For Each row As DataRow In dt.Rows
+                        Dim resId As Integer = Convert.ToInt32(row("ReservationID"))
+                        Dim resDate As DateTime = Convert.ToDateTime(row("ReservationDate"))
+                        Dim startTimeVal As TimeSpan
+
+                        If Not IsDBNull(row("StartTime")) AndAlso TimeSpan.TryParse(row("StartTime").ToString(), startTimeVal) Then
+                            Dim reservationDateTime As DateTime = resDate.Date.Add(startTimeVal)
+                            Dim gracePeriodEnd As DateTime = reservationDateTime.AddMinutes(15)
+
+                            If DateTime.Now > gracePeriodEnd Then
+                                Dim updCmd As New MySqlCommand("UPDATE tblreservation SET Status = 'Expired' WHERE ReservationID = @id AND Status = 'Reserved'", conn)
+                                updCmd.Parameters.AddWithValue("@id", resId)
+                                updCmd.ExecuteNonQuery()
+                            End If
+                        End If
+                    Next
+                End If
+            End Using
+        Catch ex As Exception
+        End Try
+    End Sub
+
     Private Function GetActiveReservations() As DataTable
+        ' I-run muna ang pag-expire ng mga lumampas bago kunin ang active reservations
+        ExpireOutdatedReservations()
+
         Dim dt As New DataTable()
         Try
             Using conn As MySqlConnection = GetConnection()
@@ -139,7 +175,6 @@ Public Class DashBoardForm
 
     Private Sub DashBoardForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ConfigureRoleInterface()
-        ' I-load muna ang database data bago mag-update ng UI
         LoadDataFromDatabase()
 
         AddHandler btnExport.Click, Sub()
@@ -748,6 +783,7 @@ Public Class DashBoardForm
             Dim resCustName As String = ""
             Dim resPlate As String = ""
             Dim resDateVal As DateTime = DateTime.MinValue
+            Dim matchedResRow As DataRow = Nothing
 
             If Not isOccupiedParked Then
                 For Each resRow As DataRow In activeReservations.Rows
@@ -761,6 +797,7 @@ Public Class DashBoardForm
                                 resCustName = resRow("CustomerName").ToString()
                                 resPlate = resRow("VehiclePlate").ToString()
                                 resDateVal = rDate
+                                matchedResRow = resRow
                                 Exit For
                             End If
                         End If
@@ -1018,6 +1055,21 @@ Public Class DashBoardForm
                                                           MessageBox.Show($"This reservation is scheduled for {resDateVal.ToString("yyyy-MM-dd")}. Early check-in is not permitted before the reservation date.", "Early Check-In", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                                                           Return
                                                       End If
+
+                                                      ' --- 15-MINUTE GRACE PERIOD VALIDATION ---
+                                                      If matchedResRow IsNot Nothing AndAlso Not IsDBNull(matchedResRow("StartTime")) Then
+                                                          Dim startTimeVal As TimeSpan
+                                                          If TimeSpan.TryParse(matchedResRow("StartTime").ToString(), startTimeVal) Then
+                                                              Dim reservationDateTime As DateTime = resDateVal.Date.Add(startTimeVal)
+                                                              Dim gracePeriodEnd As DateTime = reservationDateTime.AddMinutes(15)
+
+                                                              If DateTime.Now > gracePeriodEnd Then
+                                                                  MessageBox.Show($"The 15-minute grace period for this reservation has expired. (Start Time: {reservationDateTime.ToString("hh:mm tt")}, Allowed until: {gracePeriodEnd.ToString("hh:mm tt")})", "Grace Period Expired", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                                                  Return
+                                                              End If
+                                                          End If
+                                                      End If
+                                                      ' ------------------------------------------
 
                                                       Using conn As MySqlConnection = GetConnection()
                                                           conn.Open()

@@ -70,9 +70,8 @@ Partial Class ParkingManagerForm
         Me.pnlHeader.Controls.Add(Me.btnExit)
         Me.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top
         Me.pnlHeader.Location = New System.Drawing.Point(0, 0)
-        Me.pnlHeader.Margin = New System.Windows.Forms.Padding(4)
         Me.pnlHeader.Name = "pnlHeader"
-        Me.pnlHeader.Size = New System.Drawing.Size(1360, 74)
+        Me.pnlHeader.Size = New System.Drawing.Size(1020, 60)
         Me.pnlHeader.TabIndex = 6
         '
         'lblHeaderTitle
@@ -80,10 +79,9 @@ Partial Class ParkingManagerForm
         Me.lblHeaderTitle.AutoSize = True
         Me.lblHeaderTitle.Font = New System.Drawing.Font("Segoe UI", 14.0!, System.Drawing.FontStyle.Bold)
         Me.lblHeaderTitle.ForeColor = System.Drawing.Color.White
-        Me.lblHeaderTitle.Location = New System.Drawing.Point(20, 18)
-        Me.lblHeaderTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblHeaderTitle.Location = New System.Drawing.Point(15, 15)
         Me.lblHeaderTitle.Name = "lblHeaderTitle"
-        Me.lblHeaderTitle.Size = New System.Drawing.Size(371, 32)
+        Me.lblHeaderTitle.Size = New System.Drawing.Size(288, 25)
         Me.lblHeaderTitle.TabIndex = 0
         Me.lblHeaderTitle.Text = "Teller terminal — POS manager"
         '
@@ -95,10 +93,9 @@ Partial Class ParkingManagerForm
         Me.btnExit.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnExit.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.btnExit.ForeColor = System.Drawing.Color.White
-        Me.btnExit.Location = New System.Drawing.Point(1227, 15)
-        Me.btnExit.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnExit.Location = New System.Drawing.Point(920, 12)
         Me.btnExit.Name = "btnExit"
-        Me.btnExit.Size = New System.Drawing.Size(113, 44)
+        Me.btnExit.Size = New System.Drawing.Size(85, 36)
         Me.btnExit.TabIndex = 1
         Me.btnExit.Text = "Back"
         Me.btnExit.UseVisualStyleBackColor = False
@@ -108,10 +105,9 @@ Partial Class ParkingManagerForm
         Me.pnlStatAvailCar.BackColor = System.Drawing.Color.FromArgb(CType(CType(248, Byte), Integer), CType(CType(249, Byte), Integer), CType(CType(250, Byte), Integer))
         Me.pnlStatAvailCar.Controls.Add(Me.lblStatAvailCarTitle)
         Me.pnlStatAvailCar.Controls.Add(Me.lblStatAvailCarVal)
-        Me.pnlStatAvailCar.Location = New System.Drawing.Point(27, 98)
-        Me.pnlStatAvailCar.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlStatAvailCar.Location = New System.Drawing.Point(20, 80)
         Me.pnlStatAvailCar.Name = "pnlStatAvailCar"
-        Me.pnlStatAvailCar.Size = New System.Drawing.Size(267, 98)
+        Me.pnlStatAvailCar.Size = New System.Drawing.Size(200, 80)
         Me.pnlStatAvailCar.TabIndex = 5
         '
         'lblStatAvailCarTitle
@@ -119,10 +115,9 @@ Partial Class ParkingManagerForm
         Me.lblStatAvailCarTitle.AutoSize = True
         Me.lblStatAvailCarTitle.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.lblStatAvailCarTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblStatAvailCarTitle.Location = New System.Drawing.Point(13, 12)
-        Me.lblStatAvailCarTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStatAvailCarTitle.Location = New System.Drawing.Point(10, 10)
         Me.lblStatAvailCarTitle.Name = "lblStatAvailCarTitle"
-        Me.lblStatAvailCarTitle.Size = New System.Drawing.Size(116, 23)
+        Me.lblStatAvailCarTitle.Size = New System.Drawing.Size(93, 19)
         Me.lblStatAvailCarTitle.TabIndex = 0
         Me.lblStatAvailCarTitle.Text = "Available (car)"
         '
@@ -131,10 +126,9 @@ Partial Class ParkingManagerForm
         Me.lblStatAvailCarVal.AutoSize = True
         Me.lblStatAvailCarVal.Font = New System.Drawing.Font("Segoe UI", 22.0!)
         Me.lblStatAvailCarVal.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(180, Byte), Integer))
-        Me.lblStatAvailCarVal.Location = New System.Drawing.Point(7, 37)
-        Me.lblStatAvailCarVal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStatAvailCarVal.Location = New System.Drawing.Point(5, 30)
         Me.lblStatAvailCarVal.Name = "lblStatAvailCarVal"
-        Me.lblStatAvailCarVal.Size = New System.Drawing.Size(37, 50)
+        Me.lblStatAvailCarVal.Size = New System.Drawing.Size(30, 41)
         Me.lblStatAvailCarVal.TabIndex = 1
         Me.lblStatAvailCarVal.Text = "-"
         '
@@ -143,10 +137,9 @@ Partial Class ParkingManagerForm
         Me.pnlStatOccCar.BackColor = System.Drawing.Color.FromArgb(CType(CType(248, Byte), Integer), CType(CType(249, Byte), Integer), CType(CType(250, Byte), Integer))
         Me.pnlStatOccCar.Controls.Add(Me.lblStatOccCarTitle)
         Me.pnlStatOccCar.Controls.Add(Me.lblStatOccCarVal)
-        Me.pnlStatOccCar.Location = New System.Drawing.Point(320, 98)
-        Me.pnlStatOccCar.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlStatOccCar.Location = New System.Drawing.Point(240, 80)
         Me.pnlStatOccCar.Name = "pnlStatOccCar"
-        Me.pnlStatOccCar.Size = New System.Drawing.Size(267, 98)
+        Me.pnlStatOccCar.Size = New System.Drawing.Size(200, 80)
         Me.pnlStatOccCar.TabIndex = 4
         '
         'lblStatOccCarTitle
@@ -154,10 +147,9 @@ Partial Class ParkingManagerForm
         Me.lblStatOccCarTitle.AutoSize = True
         Me.lblStatOccCarTitle.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.lblStatOccCarTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblStatOccCarTitle.Location = New System.Drawing.Point(13, 12)
-        Me.lblStatOccCarTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStatOccCarTitle.Location = New System.Drawing.Point(10, 10)
         Me.lblStatOccCarTitle.Name = "lblStatOccCarTitle"
-        Me.lblStatOccCarTitle.Size = New System.Drawing.Size(120, 23)
+        Me.lblStatOccCarTitle.Size = New System.Drawing.Size(96, 19)
         Me.lblStatOccCarTitle.TabIndex = 0
         Me.lblStatOccCarTitle.Text = "Occupied (car)"
         '
@@ -166,10 +158,9 @@ Partial Class ParkingManagerForm
         Me.lblStatOccCarVal.AutoSize = True
         Me.lblStatOccCarVal.Font = New System.Drawing.Font("Segoe UI", 22.0!)
         Me.lblStatOccCarVal.ForeColor = System.Drawing.Color.FromArgb(CType(CType(211, Byte), Integer), CType(CType(69, Byte), Integer), CType(CType(57, Byte), Integer))
-        Me.lblStatOccCarVal.Location = New System.Drawing.Point(7, 37)
-        Me.lblStatOccCarVal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStatOccCarVal.Location = New System.Drawing.Point(5, 30)
         Me.lblStatOccCarVal.Name = "lblStatOccCarVal"
-        Me.lblStatOccCarVal.Size = New System.Drawing.Size(37, 50)
+        Me.lblStatOccCarVal.Size = New System.Drawing.Size(30, 41)
         Me.lblStatOccCarVal.TabIndex = 1
         Me.lblStatOccCarVal.Text = "-"
         '
@@ -178,10 +169,9 @@ Partial Class ParkingManagerForm
         Me.pnlStatAvailMoto.BackColor = System.Drawing.Color.FromArgb(CType(CType(248, Byte), Integer), CType(CType(249, Byte), Integer), CType(CType(250, Byte), Integer))
         Me.pnlStatAvailMoto.Controls.Add(Me.lblStatAvailMotoTitle)
         Me.pnlStatAvailMoto.Controls.Add(Me.lblStatAvailMotoVal)
-        Me.pnlStatAvailMoto.Location = New System.Drawing.Point(613, 98)
-        Me.pnlStatAvailMoto.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlStatAvailMoto.Location = New System.Drawing.Point(460, 80)
         Me.pnlStatAvailMoto.Name = "pnlStatAvailMoto"
-        Me.pnlStatAvailMoto.Size = New System.Drawing.Size(267, 98)
+        Me.pnlStatAvailMoto.Size = New System.Drawing.Size(200, 80)
         Me.pnlStatAvailMoto.TabIndex = 3
         '
         'lblStatAvailMotoTitle
@@ -189,10 +179,9 @@ Partial Class ParkingManagerForm
         Me.lblStatAvailMotoTitle.AutoSize = True
         Me.lblStatAvailMotoTitle.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.lblStatAvailMotoTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblStatAvailMotoTitle.Location = New System.Drawing.Point(13, 12)
-        Me.lblStatAvailMotoTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStatAvailMotoTitle.Location = New System.Drawing.Point(10, 10)
         Me.lblStatAvailMotoTitle.Name = "lblStatAvailMotoTitle"
-        Me.lblStatAvailMotoTitle.Size = New System.Drawing.Size(134, 23)
+        Me.lblStatAvailMotoTitle.Size = New System.Drawing.Size(108, 19)
         Me.lblStatAvailMotoTitle.TabIndex = 0
         Me.lblStatAvailMotoTitle.Text = "Available (moto)"
         '
@@ -201,10 +190,9 @@ Partial Class ParkingManagerForm
         Me.lblStatAvailMotoVal.AutoSize = True
         Me.lblStatAvailMotoVal.Font = New System.Drawing.Font("Segoe UI", 22.0!)
         Me.lblStatAvailMotoVal.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(180, Byte), Integer))
-        Me.lblStatAvailMotoVal.Location = New System.Drawing.Point(7, 37)
-        Me.lblStatAvailMotoVal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStatAvailMotoVal.Location = New System.Drawing.Point(5, 30)
         Me.lblStatAvailMotoVal.Name = "lblStatAvailMotoVal"
-        Me.lblStatAvailMotoVal.Size = New System.Drawing.Size(37, 50)
+        Me.lblStatAvailMotoVal.Size = New System.Drawing.Size(30, 41)
         Me.lblStatAvailMotoVal.TabIndex = 1
         Me.lblStatAvailMotoVal.Text = "-"
         '
@@ -213,10 +201,9 @@ Partial Class ParkingManagerForm
         Me.pnlStatOccMoto.BackColor = System.Drawing.Color.FromArgb(CType(CType(248, Byte), Integer), CType(CType(249, Byte), Integer), CType(CType(250, Byte), Integer))
         Me.pnlStatOccMoto.Controls.Add(Me.lblStatOccMotoTitle)
         Me.pnlStatOccMoto.Controls.Add(Me.lblStatOccMotoVal)
-        Me.pnlStatOccMoto.Location = New System.Drawing.Point(907, 98)
-        Me.pnlStatOccMoto.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlStatOccMoto.Location = New System.Drawing.Point(680, 80)
         Me.pnlStatOccMoto.Name = "pnlStatOccMoto"
-        Me.pnlStatOccMoto.Size = New System.Drawing.Size(267, 98)
+        Me.pnlStatOccMoto.Size = New System.Drawing.Size(200, 80)
         Me.pnlStatOccMoto.TabIndex = 2
         '
         'lblStatOccMotoTitle
@@ -224,10 +211,9 @@ Partial Class ParkingManagerForm
         Me.lblStatOccMotoTitle.AutoSize = True
         Me.lblStatOccMotoTitle.Font = New System.Drawing.Font("Segoe UI", 10.0!)
         Me.lblStatOccMotoTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblStatOccMotoTitle.Location = New System.Drawing.Point(13, 12)
-        Me.lblStatOccMotoTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStatOccMotoTitle.Location = New System.Drawing.Point(10, 10)
         Me.lblStatOccMotoTitle.Name = "lblStatOccMotoTitle"
-        Me.lblStatOccMotoTitle.Size = New System.Drawing.Size(138, 23)
+        Me.lblStatOccMotoTitle.Size = New System.Drawing.Size(111, 19)
         Me.lblStatOccMotoTitle.TabIndex = 0
         Me.lblStatOccMotoTitle.Text = "Occupied (moto)"
         '
@@ -236,10 +222,9 @@ Partial Class ParkingManagerForm
         Me.lblStatOccMotoVal.AutoSize = True
         Me.lblStatOccMotoVal.Font = New System.Drawing.Font("Segoe UI", 22.0!)
         Me.lblStatOccMotoVal.ForeColor = System.Drawing.Color.FromArgb(CType(CType(211, Byte), Integer), CType(CType(69, Byte), Integer), CType(CType(57, Byte), Integer))
-        Me.lblStatOccMotoVal.Location = New System.Drawing.Point(7, 37)
-        Me.lblStatOccMotoVal.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblStatOccMotoVal.Location = New System.Drawing.Point(5, 30)
         Me.lblStatOccMotoVal.Name = "lblStatOccMotoVal"
-        Me.lblStatOccMotoVal.Size = New System.Drawing.Size(37, 50)
+        Me.lblStatOccMotoVal.Size = New System.Drawing.Size(30, 41)
         Me.lblStatOccMotoVal.TabIndex = 1
         Me.lblStatOccMotoVal.Text = "-"
         '
@@ -259,10 +244,9 @@ Partial Class ParkingManagerForm
         Me.pnlCardCheckOut.Controls.Add(Me.lblChange)
         Me.pnlCardCheckOut.Controls.Add(Me.btnProcessPayment)
         Me.pnlCardCheckOut.CornerRadius = 8
-        Me.pnlCardCheckOut.Location = New System.Drawing.Point(613, 222)
-        Me.pnlCardCheckOut.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlCardCheckOut.Location = New System.Drawing.Point(460, 180)
         Me.pnlCardCheckOut.Name = "pnlCardCheckOut"
-        Me.pnlCardCheckOut.Size = New System.Drawing.Size(560, 492)
+        Me.pnlCardCheckOut.Size = New System.Drawing.Size(420, 400)
         Me.pnlCardCheckOut.TabIndex = 0
         '
         'lblCheckOutTitle
@@ -270,21 +254,19 @@ Partial Class ParkingManagerForm
         Me.lblCheckOutTitle.AutoSize = True
         Me.lblCheckOutTitle.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
         Me.lblCheckOutTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(27, Byte), Integer), CType(CType(42, Byte), Integer), CType(CType(71, Byte), Integer))
-        Me.lblCheckOutTitle.Location = New System.Drawing.Point(20, 18)
-        Me.lblCheckOutTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCheckOutTitle.Location = New System.Drawing.Point(15, 15)
         Me.lblCheckOutTitle.Name = "lblCheckOutTitle"
-        Me.lblCheckOutTitle.Size = New System.Drawing.Size(230, 28)
+        Me.lblCheckOutTitle.Size = New System.Drawing.Size(187, 21)
         Me.lblCheckOutTitle.TabIndex = 0
         Me.lblCheckOutTitle.Text = "Checkout and payment"
         '
         'cboSearchPlate
         '
         Me.cboSearchPlate.Font = New System.Drawing.Font("Segoe UI", 12.0!)
-        Me.cboSearchPlate.Location = New System.Drawing.Point(24, 68)
-        Me.cboSearchPlate.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboSearchPlate.Location = New System.Drawing.Point(18, 55)
         Me.cboSearchPlate.MaxLength = 7
         Me.cboSearchPlate.Name = "cboSearchPlate"
-        Me.cboSearchPlate.Size = New System.Drawing.Size(372, 36)
+        Me.cboSearchPlate.Size = New System.Drawing.Size(280, 29)
         Me.cboSearchPlate.TabIndex = 1
         '
         'btnSearch
@@ -294,10 +276,9 @@ Partial Class ParkingManagerForm
         Me.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnSearch.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.btnSearch.ForeColor = System.Drawing.Color.White
-        Me.btnSearch.Location = New System.Drawing.Point(411, 66)
-        Me.btnSearch.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnSearch.Location = New System.Drawing.Point(308, 54)
         Me.btnSearch.Name = "btnSearch"
-        Me.btnSearch.Size = New System.Drawing.Size(120, 38)
+        Me.btnSearch.Size = New System.Drawing.Size(90, 31)
         Me.btnSearch.TabIndex = 2
         Me.btnSearch.Text = "Search"
         Me.btnSearch.UseVisualStyleBackColor = False
@@ -307,10 +288,9 @@ Partial Class ParkingManagerForm
         Me.lblDiscount.AutoSize = True
         Me.lblDiscount.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblDiscount.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblDiscount.Location = New System.Drawing.Point(20, 129)
-        Me.lblDiscount.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblDiscount.Location = New System.Drawing.Point(15, 105)
         Me.lblDiscount.Name = "lblDiscount"
-        Me.lblDiscount.Size = New System.Drawing.Size(109, 20)
+        Me.lblDiscount.Size = New System.Drawing.Size(87, 15)
         Me.lblDiscount.TabIndex = 3
         Me.lblDiscount.Text = "Select discount"
         '
@@ -319,10 +299,9 @@ Partial Class ParkingManagerForm
         Me.cmbDiscount.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbDiscount.Font = New System.Drawing.Font("Segoe UI", 12.0!)
         Me.cmbDiscount.Items.AddRange(New Object() {"None", "Senior Citizen", "PWD"})
-        Me.cmbDiscount.Location = New System.Drawing.Point(24, 154)
-        Me.cmbDiscount.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmbDiscount.Location = New System.Drawing.Point(18, 125)
         Me.cmbDiscount.Name = "cmbDiscount"
-        Me.cmbDiscount.Size = New System.Drawing.Size(505, 36)
+        Me.cmbDiscount.Size = New System.Drawing.Size(380, 29)
         Me.cmbDiscount.TabIndex = 4
         '
         'lblFee
@@ -330,10 +309,9 @@ Partial Class ParkingManagerForm
         Me.lblFee.AutoSize = True
         Me.lblFee.Font = New System.Drawing.Font("Segoe UI", 11.0!, System.Drawing.FontStyle.Bold)
         Me.lblFee.ForeColor = System.Drawing.Color.FromArgb(CType(CType(27, Byte), Integer), CType(CType(42, Byte), Integer), CType(CType(71, Byte), Integer))
-        Me.lblFee.Location = New System.Drawing.Point(20, 215)
-        Me.lblFee.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblFee.Location = New System.Drawing.Point(15, 175)
         Me.lblFee.Name = "lblFee"
-        Me.lblFee.Size = New System.Drawing.Size(147, 25)
+        Me.lblFee.Size = New System.Drawing.Size(119, 20)
         Me.lblFee.TabIndex = 5
         Me.lblFee.Text = "Total fee: ₱0.00"
         '
@@ -342,20 +320,18 @@ Partial Class ParkingManagerForm
         Me.lblAmtPaid.AutoSize = True
         Me.lblAmtPaid.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblAmtPaid.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblAmtPaid.Location = New System.Drawing.Point(20, 265)
-        Me.lblAmtPaid.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblAmtPaid.Location = New System.Drawing.Point(15, 215)
         Me.lblAmtPaid.Name = "lblAmtPaid"
-        Me.lblAmtPaid.Size = New System.Drawing.Size(96, 20)
+        Me.lblAmtPaid.Size = New System.Drawing.Size(77, 15)
         Me.lblAmtPaid.TabIndex = 6
         Me.lblAmtPaid.Text = "Amount paid"
         '
         'txtAmountPaid
         '
         Me.txtAmountPaid.Font = New System.Drawing.Font("Segoe UI", 12.0!)
-        Me.txtAmountPaid.Location = New System.Drawing.Point(24, 289)
-        Me.txtAmountPaid.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtAmountPaid.Location = New System.Drawing.Point(18, 235)
         Me.txtAmountPaid.Name = "txtAmountPaid"
-        Me.txtAmountPaid.Size = New System.Drawing.Size(505, 34)
+        Me.txtAmountPaid.Size = New System.Drawing.Size(380, 29)
         Me.txtAmountPaid.TabIndex = 7
         '
         'lblChange
@@ -363,10 +339,9 @@ Partial Class ParkingManagerForm
         Me.lblChange.AutoSize = True
         Me.lblChange.Font = New System.Drawing.Font("Segoe UI", 10.0!, System.Drawing.FontStyle.Bold)
         Me.lblChange.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(180, Byte), Integer))
-        Me.lblChange.Location = New System.Drawing.Point(20, 338)
-        Me.lblChange.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblChange.Location = New System.Drawing.Point(15, 275)
         Me.lblChange.Name = "lblChange"
-        Me.lblChange.Size = New System.Drawing.Size(126, 23)
+        Me.lblChange.Size = New System.Drawing.Size(104, 19)
         Me.lblChange.TabIndex = 8
         Me.lblChange.Text = "Change: ₱0.00"
         '
@@ -377,10 +352,9 @@ Partial Class ParkingManagerForm
         Me.btnProcessPayment.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnProcessPayment.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
         Me.btnProcessPayment.ForeColor = System.Drawing.Color.White
-        Me.btnProcessPayment.Location = New System.Drawing.Point(24, 375)
-        Me.btnProcessPayment.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnProcessPayment.Location = New System.Drawing.Point(18, 305)
         Me.btnProcessPayment.Name = "btnProcessPayment"
-        Me.btnProcessPayment.Size = New System.Drawing.Size(507, 55)
+        Me.btnProcessPayment.Size = New System.Drawing.Size(380, 45)
         Me.btnProcessPayment.TabIndex = 9
         Me.btnProcessPayment.Text = "Process payment"
         Me.btnProcessPayment.UseVisualStyleBackColor = False
@@ -401,10 +375,9 @@ Partial Class ParkingManagerForm
         Me.pnlCardCheckIn.Controls.Add(Me.lblSlotStatus)
         Me.pnlCardCheckIn.Controls.Add(Me.btnPark)
         Me.pnlCardCheckIn.CornerRadius = 8
-        Me.pnlCardCheckIn.Location = New System.Drawing.Point(27, 222)
-        Me.pnlCardCheckIn.Margin = New System.Windows.Forms.Padding(4)
+        Me.pnlCardCheckIn.Location = New System.Drawing.Point(20, 180)
         Me.pnlCardCheckIn.Name = "pnlCardCheckIn"
-        Me.pnlCardCheckIn.Size = New System.Drawing.Size(560, 492)
+        Me.pnlCardCheckIn.Size = New System.Drawing.Size(420, 400)
         Me.pnlCardCheckIn.TabIndex = 1
         '
         'lblCheckInTitle
@@ -412,10 +385,9 @@ Partial Class ParkingManagerForm
         Me.lblCheckInTitle.AutoSize = True
         Me.lblCheckInTitle.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
         Me.lblCheckInTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(27, Byte), Integer), CType(CType(42, Byte), Integer), CType(CType(71, Byte), Integer))
-        Me.lblCheckInTitle.Location = New System.Drawing.Point(20, 18)
-        Me.lblCheckInTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCheckInTitle.Location = New System.Drawing.Point(15, 15)
         Me.lblCheckInTitle.Name = "lblCheckInTitle"
-        Me.lblCheckInTitle.Size = New System.Drawing.Size(166, 28)
+        Me.lblCheckInTitle.Size = New System.Drawing.Size(135, 21)
         Me.lblCheckInTitle.TabIndex = 0
         Me.lblCheckInTitle.Text = "Check-in vehicle"
         '
@@ -424,10 +396,9 @@ Partial Class ParkingManagerForm
         Me.lblPlateNum.AutoSize = True
         Me.lblPlateNum.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblPlateNum.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblPlateNum.Location = New System.Drawing.Point(20, 68)
-        Me.lblPlateNum.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblPlateNum.Location = New System.Drawing.Point(15, 55)
         Me.lblPlateNum.Name = "lblPlateNum"
-        Me.lblPlateNum.Size = New System.Drawing.Size(97, 20)
+        Me.lblPlateNum.Size = New System.Drawing.Size(78, 15)
         Me.lblPlateNum.TabIndex = 1
         Me.lblPlateNum.Text = "Plate number"
         '
@@ -435,11 +406,10 @@ Partial Class ParkingManagerForm
         '
         Me.txtPlateNumber.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.txtPlateNumber.Font = New System.Drawing.Font("Segoe UI", 12.0!)
-        Me.txtPlateNumber.Location = New System.Drawing.Point(24, 92)
-        Me.txtPlateNumber.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtPlateNumber.Location = New System.Drawing.Point(18, 75)
         Me.txtPlateNumber.MaxLength = 7
         Me.txtPlateNumber.Name = "txtPlateNumber"
-        Me.txtPlateNumber.Size = New System.Drawing.Size(505, 34)
+        Me.txtPlateNumber.Size = New System.Drawing.Size(380, 29)
         Me.txtPlateNumber.TabIndex = 2
         '
         'lblVehType
@@ -447,10 +417,9 @@ Partial Class ParkingManagerForm
         Me.lblVehType.AutoSize = True
         Me.lblVehType.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblVehType.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblVehType.Location = New System.Drawing.Point(20, 154)
-        Me.lblVehType.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblVehType.Location = New System.Drawing.Point(15, 125)
         Me.lblVehType.Name = "lblVehType"
-        Me.lblVehType.Size = New System.Drawing.Size(89, 20)
+        Me.lblVehType.Size = New System.Drawing.Size(70, 15)
         Me.lblVehType.TabIndex = 3
         Me.lblVehType.Text = "Vehicle type"
         '
@@ -458,10 +427,9 @@ Partial Class ParkingManagerForm
         '
         Me.cmbType.Font = New System.Drawing.Font("Segoe UI", 12.0!)
         Me.cmbType.Items.AddRange(New Object() {"Car", "Motorcycle"})
-        Me.cmbType.Location = New System.Drawing.Point(24, 178)
-        Me.cmbType.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmbType.Location = New System.Drawing.Point(18, 145)
         Me.cmbType.Name = "cmbType"
-        Me.cmbType.Size = New System.Drawing.Size(505, 36)
+        Me.cmbType.Size = New System.Drawing.Size(380, 29)
         Me.cmbType.TabIndex = 4
         '
         'lblSelectSlot
@@ -469,10 +437,9 @@ Partial Class ParkingManagerForm
         Me.lblSelectSlot.AutoSize = True
         Me.lblSelectSlot.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblSelectSlot.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblSelectSlot.Location = New System.Drawing.Point(20, 240)
-        Me.lblSelectSlot.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSelectSlot.Location = New System.Drawing.Point(15, 195)
         Me.lblSelectSlot.Name = "lblSelectSlot"
-        Me.lblSelectSlot.Size = New System.Drawing.Size(77, 20)
+        Me.lblSelectSlot.Size = New System.Drawing.Size(60, 15)
         Me.lblSelectSlot.TabIndex = 5
         Me.lblSelectSlot.Text = "Select slot"
         '
@@ -480,10 +447,9 @@ Partial Class ParkingManagerForm
         '
         Me.cboParkingSlots.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboParkingSlots.Font = New System.Drawing.Font("Segoe UI", 12.0!)
-        Me.cboParkingSlots.Location = New System.Drawing.Point(24, 265)
-        Me.cboParkingSlots.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboParkingSlots.Location = New System.Drawing.Point(18, 215)
         Me.cboParkingSlots.Name = "cboParkingSlots"
-        Me.cboParkingSlots.Size = New System.Drawing.Size(505, 36)
+        Me.cboParkingSlots.Size = New System.Drawing.Size(380, 29)
         Me.cboParkingSlots.TabIndex = 6
         '
         'lblSlotStatusTitle
@@ -491,10 +457,9 @@ Partial Class ParkingManagerForm
         Me.lblSlotStatusTitle.AutoSize = True
         Me.lblSlotStatusTitle.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.lblSlotStatusTitle.ForeColor = System.Drawing.Color.FromArgb(CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer), CType(CType(80, Byte), Integer))
-        Me.lblSlotStatusTitle.Location = New System.Drawing.Point(20, 320)
-        Me.lblSlotStatusTitle.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSlotStatusTitle.Location = New System.Drawing.Point(15, 260)
         Me.lblSlotStatusTitle.Name = "lblSlotStatusTitle"
-        Me.lblSlotStatusTitle.Size = New System.Drawing.Size(84, 20)
+        Me.lblSlotStatusTitle.Size = New System.Drawing.Size(67, 15)
         Me.lblSlotStatusTitle.TabIndex = 7
         Me.lblSlotStatusTitle.Text = "Slot status: "
         '
@@ -503,10 +468,9 @@ Partial Class ParkingManagerForm
         Me.lblSlotStatus.AutoSize = True
         Me.lblSlotStatus.Font = New System.Drawing.Font("Segoe UI", 9.0!, System.Drawing.FontStyle.Bold)
         Me.lblSlotStatus.ForeColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(180, Byte), Integer), CType(CType(180, Byte), Integer))
-        Me.lblSlotStatus.Location = New System.Drawing.Point(113, 320)
-        Me.lblSlotStatus.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSlotStatus.Location = New System.Drawing.Point(85, 260)
         Me.lblSlotStatus.Name = "lblSlotStatus"
-        Me.lblSlotStatus.Size = New System.Drawing.Size(15, 20)
+        Me.lblSlotStatus.Size = New System.Drawing.Size(12, 15)
         Me.lblSlotStatus.TabIndex = 8
         Me.lblSlotStatus.Text = "-"
         '
@@ -517,20 +481,19 @@ Partial Class ParkingManagerForm
         Me.btnPark.FlatStyle = System.Windows.Forms.FlatStyle.Flat
         Me.btnPark.Font = New System.Drawing.Font("Segoe UI", 12.0!, System.Drawing.FontStyle.Bold)
         Me.btnPark.ForeColor = System.Drawing.Color.White
-        Me.btnPark.Location = New System.Drawing.Point(24, 375)
-        Me.btnPark.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnPark.Location = New System.Drawing.Point(18, 305)
         Me.btnPark.Name = "btnPark"
-        Me.btnPark.Size = New System.Drawing.Size(507, 55)
+        Me.btnPark.Size = New System.Drawing.Size(380, 45)
         Me.btnPark.TabIndex = 9
         Me.btnPark.Text = "Park vehicle"
         Me.btnPark.UseVisualStyleBackColor = False
         '
         'ParkingManagerForm
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(1360, 789)
+        Me.ClientSize = New System.Drawing.Size(1020, 641)
         Me.Controls.Add(Me.pnlCardCheckOut)
         Me.Controls.Add(Me.pnlCardCheckIn)
         Me.Controls.Add(Me.pnlStatOccMoto)
@@ -539,7 +502,6 @@ Partial Class ParkingManagerForm
         Me.Controls.Add(Me.pnlStatAvailCar)
         Me.Controls.Add(Me.pnlHeader)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
-        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "ParkingManagerForm"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Teller terminal"

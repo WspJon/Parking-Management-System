@@ -50,9 +50,9 @@ Partial Class RegisterForm
         Me.lblTitle.ForeColor = System.Drawing.Color.White
         Me.lblTitle.Location = New System.Drawing.Point(15, 15)
         Me.lblTitle.Name = "lblTitle"
-        Me.lblTitle.Size = New System.Drawing.Size(239, 25)
+        Me.lblTitle.Size = New System.Drawing.Size(112, 20)
         Me.lblTitle.TabIndex = 0
-        Me.lblTitle.Text = "Create Customer Account"
+        Me.lblTitle.Text = "Guest Account"
         '
         'lblFullName
         '
@@ -61,7 +61,7 @@ Partial Class RegisterForm
         Me.lblFullName.ForeColor = System.Drawing.Color.DimGray
         Me.lblFullName.Location = New System.Drawing.Point(30, 70)
         Me.lblFullName.Name = "lblFullName"
-        Me.lblFullName.Size = New System.Drawing.Size(93, 20)
+        Me.lblFullName.Size = New System.Drawing.Size(71, 15)
         Me.lblFullName.TabIndex = 1
         Me.lblFullName.Text = "FULL NAME"
         '
@@ -70,7 +70,7 @@ Partial Class RegisterForm
         Me.txtFullName.Font = New System.Drawing.Font("Segoe UI", 11.0!)
         Me.txtFullName.Location = New System.Drawing.Point(30, 95)
         Me.txtFullName.Name = "txtFullName"
-        Me.txtFullName.Size = New System.Drawing.Size(290, 32)
+        Me.txtFullName.Size = New System.Drawing.Size(290, 27)
         Me.txtFullName.TabIndex = 2
         '
         'lblUser
@@ -80,7 +80,7 @@ Partial Class RegisterForm
         Me.lblUser.ForeColor = System.Drawing.Color.DimGray
         Me.lblUser.Location = New System.Drawing.Point(30, 140)
         Me.lblUser.Name = "lblUser"
-        Me.lblUser.Size = New System.Drawing.Size(91, 20)
+        Me.lblUser.Size = New System.Drawing.Size(71, 15)
         Me.lblUser.TabIndex = 3
         Me.lblUser.Text = "USERNAME"
         '
@@ -89,7 +89,7 @@ Partial Class RegisterForm
         Me.txtUser.Font = New System.Drawing.Font("Segoe UI", 11.0!)
         Me.txtUser.Location = New System.Drawing.Point(30, 165)
         Me.txtUser.Name = "txtUser"
-        Me.txtUser.Size = New System.Drawing.Size(290, 32)
+        Me.txtUser.Size = New System.Drawing.Size(290, 27)
         Me.txtUser.TabIndex = 4
         '
         'lblPass
@@ -99,7 +99,7 @@ Partial Class RegisterForm
         Me.lblPass.ForeColor = System.Drawing.Color.DimGray
         Me.lblPass.Location = New System.Drawing.Point(30, 210)
         Me.lblPass.Name = "lblPass"
-        Me.lblPass.Size = New System.Drawing.Size(91, 20)
+        Me.lblPass.Size = New System.Drawing.Size(73, 15)
         Me.lblPass.TabIndex = 5
         Me.lblPass.Text = "PASSWORD"
         '
@@ -109,7 +109,7 @@ Partial Class RegisterForm
         Me.txtPass.Location = New System.Drawing.Point(30, 235)
         Me.txtPass.Name = "txtPass"
         Me.txtPass.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtPass.Size = New System.Drawing.Size(290, 32)
+        Me.txtPass.Size = New System.Drawing.Size(290, 27)
         Me.txtPass.TabIndex = 6
         '
         'lblConfirm
@@ -119,7 +119,7 @@ Partial Class RegisterForm
         Me.lblConfirm.ForeColor = System.Drawing.Color.DimGray
         Me.lblConfirm.Location = New System.Drawing.Point(30, 280)
         Me.lblConfirm.Name = "lblConfirm"
-        Me.lblConfirm.Size = New System.Drawing.Size(164, 20)
+        Me.lblConfirm.Size = New System.Drawing.Size(130, 15)
         Me.lblConfirm.TabIndex = 7
         Me.lblConfirm.Text = "CONFIRM PASSWORD"
         '
@@ -129,7 +129,7 @@ Partial Class RegisterForm
         Me.txtConfirm.Location = New System.Drawing.Point(30, 305)
         Me.txtConfirm.Name = "txtConfirm"
         Me.txtConfirm.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtConfirm.Size = New System.Drawing.Size(290, 32)
+        Me.txtConfirm.Size = New System.Drawing.Size(290, 27)
         Me.txtConfirm.TabIndex = 8
         '
         'btnRegister
@@ -167,7 +167,7 @@ Partial Class RegisterForm
         Me.chkRegShow.ForeColor = System.Drawing.Color.DimGray
         Me.chkRegShow.Location = New System.Drawing.Point(200, 210)
         Me.chkRegShow.Name = "chkRegShow"
-        Me.chkRegShow.Size = New System.Drawing.Size(138, 24)
+        Me.chkRegShow.Size = New System.Drawing.Size(113, 19)
         Me.chkRegShow.TabIndex = 11
         Me.chkRegShow.Text = "Show Passwords"
         Me.chkRegShow.UseVisualStyleBackColor = True
