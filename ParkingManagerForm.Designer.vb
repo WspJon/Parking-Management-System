@@ -264,7 +264,7 @@ Partial Class ParkingManagerForm
         '
         Me.cboSearchPlate.Font = New System.Drawing.Font("Segoe UI", 12.0!)
         Me.cboSearchPlate.Location = New System.Drawing.Point(18, 55)
-        Me.cboSearchPlate.MaxLength = 7
+        Me.cboSearchPlate.MaxLength = 8
         Me.cboSearchPlate.Name = "cboSearchPlate"
         Me.cboSearchPlate.Size = New System.Drawing.Size(280, 29)
         Me.cboSearchPlate.TabIndex = 1

@@ -46,6 +46,7 @@ Public Class DashBoardForm
                                          "p.VehicleType, p.RateName, p.Rate, p.`Parking Slot` AS Slot, " &
                                          "p.Duration AS TotalTime, p.TotalAmount, p.`Paid Status` AS PaidStatus, " &
                                          "p.DiscountType, p.PenaltyAmount, p.AmountPaid, p.ChangeAmount, " &
+                                         "COALESCE(p.ReceiptNo, '') AS ReceiptNo, COALESCE(p.PaymentMethod, 'Cash') AS PaymentMethod, " &
                                          "p.ReservationID, p.CustomerID, p.TellerID, " &
                                          "COALESCE(c.Fullname, '') AS CustomerName, " &
                                          "COALESCE(p.ProcessedByName, t.FullName, '') AS ProcessedBy " &
@@ -87,7 +88,11 @@ Public Class DashBoardForm
                         Dim resDate As DateTime = Convert.ToDateTime(row("ReservationDate"))
                         Dim startTimeVal As TimeSpan
 
-                        If Not IsDBNull(row("StartTime")) AndAlso TimeSpan.TryParse(row("StartTime").ToString(), startTimeVal) Then
+                        If resDate.Date < DateTime.Today Then
+                            Dim updCmd As New MySqlCommand("UPDATE tblreservation SET Status = 'Expired' WHERE ReservationID = @id AND Status = 'Reserved'", conn)
+                            updCmd.Parameters.AddWithValue("@id", resId)
+                            updCmd.ExecuteNonQuery()
+                        ElseIf Not IsDBNull(row("StartTime")) AndAlso TimeSpan.TryParse(row("StartTime").ToString(), startTimeVal) Then
                             Dim reservationDateTime As DateTime = resDate.Date.Add(startTimeVal)
                             Dim gracePeriodEnd As DateTime = reservationDateTime.AddMinutes(15)
 
@@ -626,7 +631,7 @@ Public Class DashBoardForm
         Dim maxCarSlots As Integer = 50
         Dim maxMotorSlots As Integer = 20
 
-        ParkingData.InitializeDatabase()
+        ParkingData.ResetParkingSlots()
 
         Dim occupiedCars As Integer = 0
         Dim occupiedMotors As Integer = 0
@@ -706,6 +711,7 @@ Public Class DashBoardForm
         dgvVehicles.DataSource = Nothing
         dgvVehicles.DataSource = ParkingData.ParkingTable
 
+        If dgvVehicles.Columns.Contains("TransactionID") Then dgvVehicles.Columns("TransactionID").Visible = False
         If dgvVehicles.Columns.Contains("Code") Then dgvVehicles.Columns("Code").Visible = False
         If dgvVehicles.Columns.Contains("PlateNumber") Then dgvVehicles.Columns("PlateNumber").HeaderText = "Plate Number"
 
@@ -732,6 +738,11 @@ Public Class DashBoardForm
         End If
 
         If dgvVehicles.Columns.Contains("PaidStatus") Then dgvVehicles.Columns("PaidStatus").HeaderText = "Paid Status"
+        If dgvVehicles.Columns.Contains("ReceiptNo") Then dgvVehicles.Columns("ReceiptNo").HeaderText = "Receipt No."
+        If dgvVehicles.Columns.Contains("PaymentMethod") Then dgvVehicles.Columns("PaymentMethod").HeaderText = "Payment Method"
+        If dgvVehicles.Columns.Contains("ReservationID") Then dgvVehicles.Columns("ReservationID").Visible = False
+        If dgvVehicles.Columns.Contains("CustomerID") Then dgvVehicles.Columns("CustomerID").Visible = False
+        If dgvVehicles.Columns.Contains("TellerID") Then dgvVehicles.Columns("TellerID").Visible = False
 
         dgvVehicles.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
 

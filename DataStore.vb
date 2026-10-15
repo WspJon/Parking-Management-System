@@ -9,6 +9,7 @@ Module DataStore
     Public Sub LoadDatabase()
         ParkingData.InitializeDatabase()
         ParkingData.InitializeUsers()
+        DatabaseModule.EnsureDatabaseSchema()
         DatabaseModule.LoadRatesFromDatabase()
         MigrateExistingXmlData()
     End Sub

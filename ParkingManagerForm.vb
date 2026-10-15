@@ -8,6 +8,10 @@ Public Class ParkingManagerForm
     Dim currentFee As Decimal = 0D
     Dim penaltyAmount As Decimal = 0D
 
+    Public Sub New()
+        InitializeComponent()
+    End Sub
+
     ' Kinukuha ang CustomerID o TellerID base sa Username, depende sa role
     Private Function GetCurrentUserID(role As String, username As String) As Object
         Try
@@ -15,19 +19,19 @@ Public Class ParkingManagerForm
                 If conn IsNot Nothing Then
                     If role = "Teller" Then
                         Dim cmd As New MySqlCommand("SELECT TellerID FROM tblteller WHERE Username = @user", conn)
-                        cmd.Parameters.AddWithValue("@user", username)
+                        cmd.Parameters.AddWithValue("@user", If(username, ""))
                         Dim result = cmd.ExecuteScalar()
                         Return If(result Is Nothing, CType(DBNull.Value, Object), result)
 
                     ElseIf role = "Customer" Then
                         Dim cmd As New MySqlCommand("SELECT CustomerID FROM tblcustomer WHERE Username = @user", conn)
-                        cmd.Parameters.AddWithValue("@user", username)
+                        cmd.Parameters.AddWithValue("@user", If(username, ""))
                         Dim result = cmd.ExecuteScalar()
                         Return If(result Is Nothing, CType(DBNull.Value, Object), result)
                     End If
                 End If
             End Using
-        Catch ex As MySqlException
+        Catch ex As Exception
         End Try
 
         Return DBNull.Value
@@ -347,7 +351,7 @@ Public Class ParkingManagerForm
             Exit Sub
         End If
 
-        Dim previousPlate As String = If(foundRow IsNot Nothing, foundRow("PlateNumber").ToString(), "")
+        Dim previousPlate As String = If(foundRow IsNot Nothing AndAlso foundRow.RowState <> DataRowState.Detached, foundRow("PlateNumber").ToString(), "")
         foundRow = Nothing
         Dim searchPlate As String = cboSearchPlate.SelectedItem.ToString()
 
@@ -374,42 +378,54 @@ Public Class ParkingManagerForm
     End Sub
 
     Private Sub CalculateAndDisplayFee()
-        If foundRow IsNot Nothing Then
-            Dim timeIn As DateTime = Convert.ToDateTime(foundRow("CheckIn"))
-            Dim hours As Double = Math.Ceiling((DateTime.Now - timeIn).TotalHours)
-            If hours < 1 Then hours = 1
-
-            Dim isCar As Boolean = (foundRow("VehicleType").ToString() = "Four Wheels")
-            Dim baseRate As Decimal = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
-            Dim succeedingRate As Decimal = If(isCar, ParkingData.CarSucceedingRate, ParkingData.MotorSucceedingRate)
-
-            Dim totalCalculatedFee As Decimal = baseRate
-            If hours > ParkingData.FreeHours Then
-                totalCalculatedFee = baseRate + (Convert.ToDecimal(hours - ParkingData.FreeHours) * succeedingRate)
-            End If
-
-            penaltyAmount = 0D
-            Dim slotName As String = foundRow("Slot").ToString()
-            For Each row As DataRow In ParkingData.ParkingTable.Rows
-                If row("Slot").ToString() = slotName AndAlso row("PaidStatus").ToString() = "Reserved" Then
-                    If Not IsDBNull(row("ReservationDate")) AndAlso Convert.ToDateTime(row("ReservationDate")).Date = DateTime.Now.Date Then
-                        penaltyAmount = ParkingData.OverstayPenaltyFee
-                        Exit For
-                    End If
+        If foundRow IsNot Nothing AndAlso foundRow.RowState <> DataRowState.Detached AndAlso foundRow.Table IsNot Nothing Then
+            Try
+                Dim timeIn As DateTime = DateTime.Now
+                If Not IsDBNull(foundRow("CheckIn")) Then
+                    DateTime.TryParse(foundRow("CheckIn").ToString(), timeIn)
                 End If
-            Next
 
-            totalCalculatedFee += penaltyAmount
+                Dim hours As Double = Math.Ceiling(Math.Max(0.0, (DateTime.Now - timeIn).TotalHours))
+                If hours < 1 Then hours = 1
 
-            If cmbDiscount.Text = "PWD" Then
+                Dim rawVType As String = If(Not IsDBNull(foundRow("VehicleType")), foundRow("VehicleType").ToString(), "Car")
+                Dim isCar As Boolean = (rawVType = "Four Wheels" OrElse rawVType.Equals("Car", StringComparison.OrdinalIgnoreCase))
+                Dim baseRate As Decimal = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
+                Dim succeedingRate As Decimal = If(isCar, ParkingData.CarSucceedingRate, ParkingData.MotorSucceedingRate)
+
+                Dim subtotalFee As Decimal = baseRate
+                If hours > ParkingData.FreeHours Then
+                    subtotalFee = baseRate + (Convert.ToDecimal(hours - ParkingData.FreeHours) * succeedingRate)
+                End If
+
+                penaltyAmount = 0D
+                Dim slotName As String = If(Not IsDBNull(foundRow("Slot")), foundRow("Slot").ToString(), "")
+                If ParkingData.ParkingTable IsNot Nothing Then
+                    For Each row As DataRow In ParkingData.ParkingTable.Rows
+                        If row.RowState <> DataRowState.Detached AndAlso row("Slot").ToString() = slotName AndAlso row("PaidStatus").ToString() = "Reserved" Then
+                            If Not IsDBNull(row("ReservationDate")) AndAlso Convert.ToDateTime(row("ReservationDate")).Date = DateTime.Now.Date Then
+                                penaltyAmount = ParkingData.OverstayPenaltyFee
+                                Exit For
+                            End If
+                        End If
+                    Next
+                End If
+
+                Dim discountAmount As Decimal = 0D
+                If cmbDiscount.Text = "PWD" Then
+                    discountAmount = subtotalFee
+                ElseIf cmbDiscount.Text = "Senior Citizen" Then
+                    discountAmount = Math.Round(subtotalFee * 0.2D, 2)
+                End If
+
+                currentFee = subtotalFee - discountAmount + penaltyAmount
+                lblFee.Text = "Total Fee: ₱" & currentFee.ToString("F2")
+            Catch ex As Exception
+                foundRow = Nothing
                 currentFee = 0D
-            ElseIf cmbDiscount.Text = "Senior Citizen" Then
-                currentFee = Math.Round(totalCalculatedFee * 0.8D, 2)
-            Else
-                currentFee = totalCalculatedFee
-            End If
-
-            lblFee.Text = "Total Fee: ₱" & currentFee.ToString("F2")
+                penaltyAmount = 0D
+                lblFee.Text = "Total Fee: ₱0.00"
+            End Try
         End If
     End Sub
 
@@ -423,7 +439,66 @@ Public Class ParkingManagerForm
             Exit Sub
         End If
 
-        CalculateAndDisplayFee()
+        ' Timestamp locked at start of checkout to avoid race condition across hour boundaries during user confirmation
+        Dim timeOut As DateTime = DateTime.Now
+        Dim timeIn As DateTime = timeOut
+        If Not IsDBNull(foundRow("CheckIn")) Then
+            DateTime.TryParse(foundRow("CheckIn").ToString(), timeIn)
+        End If
+        If timeOut < timeIn Then timeOut = timeIn
+
+        Dim totalMinutes As Double = Math.Max(0.0, (timeOut - timeIn).TotalMinutes)
+        Dim hours As Double = Math.Ceiling((timeOut - timeIn).TotalHours)
+        If hours < 1 Then hours = 1
+
+        ' Vehicle Type from check-in mapped to friendly name (Car / Motorcycle)
+        Dim rawVType As String = If(Not IsDBNull(foundRow("VehicleType")), foundRow("VehicleType").ToString(), "Car")
+        Dim displayVType As String = "Car"
+        If rawVType.Equals("Two Wheels", StringComparison.OrdinalIgnoreCase) OrElse rawVType.IndexOf("Motor", StringComparison.OrdinalIgnoreCase) >= 0 Then
+            displayVType = "Motorcycle"
+        ElseIf rawVType.Equals("Four Wheels", StringComparison.OrdinalIgnoreCase) OrElse rawVType.IndexOf("Car", StringComparison.OrdinalIgnoreCase) >= 0 Then
+            displayVType = "Car"
+        Else
+            displayVType = rawVType
+        End If
+
+        Dim isCar As Boolean = (displayVType = "Car")
+        Dim baseRate As Decimal = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
+        Dim succeedingRate As Decimal = If(isCar, ParkingData.CarSucceedingRate, ParkingData.MotorSucceedingRate)
+        Dim baseStr As String = "₱" & baseRate.ToString("F2") & " / hr"
+
+        Dim subtotalFee As Decimal = baseRate
+        If hours > ParkingData.FreeHours Then
+            subtotalFee = baseRate + (Convert.ToDecimal(hours - ParkingData.FreeHours) * succeedingRate)
+        End If
+        Dim subtotalStr As String = "₱" & subtotalFee.ToString("F2")
+
+        penaltyAmount = 0D
+        Dim slotName As String = If(Not IsDBNull(foundRow("Slot")), foundRow("Slot").ToString(), "")
+        For Each row As DataRow In ParkingData.ParkingTable.Rows
+            If row("Slot").ToString() = slotName AndAlso row("PaidStatus").ToString() = "Reserved" Then
+                If Not IsDBNull(row("ReservationDate")) AndAlso Convert.ToDateTime(row("ReservationDate")).Date = DateTime.Now.Date Then
+                    penaltyAmount = ParkingData.OverstayPenaltyFee
+                    Exit For
+                End If
+            End If
+        Next
+
+        Dim discountStr As String = cmbDiscount.Text
+        Dim discountPercent As Decimal = 0D
+        Dim discountAmount As Decimal = 0D
+        If discountStr = "Senior Citizen" Then
+            discountPercent = 0.2D
+            discountAmount = Math.Round(subtotalFee * discountPercent, 2)
+        ElseIf discountStr = "PWD" Then
+            discountPercent = 1D
+            discountAmount = subtotalFee
+        End If
+
+        ' Amount Due = subtotal - discount + penalty
+        Dim totalDue As Decimal = subtotalFee - discountAmount + penaltyAmount
+        currentFee = totalDue
+        lblFee.Text = "Total Fee: ₱" & currentFee.ToString("F2")
 
         Dim cashPaid As Decimal = 0D
         If Not Decimal.TryParse(txtAmountPaid.Text, cashPaid) OrElse cashPaid < 0D Then
@@ -431,34 +506,32 @@ Public Class ParkingManagerForm
             Exit Sub
         End If
 
-        If cashPaid < currentFee Then
-            Dim shortage As Decimal = currentFee - cashPaid
+        If cashPaid < totalDue Then
+            Dim shortage As Decimal = totalDue - cashPaid
             MessageBox.Show("Insufficient payment! The customer still owes ₱" & shortage.ToString("F2"), "Payment Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
         End If
 
-        Dim calculatedChange As Decimal = cashPaid - currentFee
+        Dim calculatedChange As Decimal = cashPaid - totalDue
         lblChange.Text = "Change: ₱" & calculatedChange.ToString("F2")
 
-        Dim confirmPay As New ConfirmActionDialogForm("Process Payment", $"Confirm payment of ₱{currentFee.ToString("F2")} for plate '{foundRow("PlateNumber")}'?", "YES")
+        Dim confirmPay As New ConfirmActionDialogForm("Process Payment", $"Confirm payment of ₱{totalDue.ToString("F2")} for plate '{foundRow("PlateNumber")}'?", "YES")
         If OverlayHelper.ShowDialog(Me, confirmPay) <> DialogResult.Yes Then
             Exit Sub
         End If
 
-        Dim timeIn As DateTime = Convert.ToDateTime(foundRow("CheckIn"))
-        Dim timeOut As DateTime = DateTime.Now
-        Dim hours As Double = Math.Ceiling((timeOut - timeIn).TotalHours)
-        If hours < 1 Then hours = 1
+        ' Format strings using locked timestamp and verified hours
+        Dim timeInStr As String = timeIn.ToString("MMM dd, yyyy  hh:mm tt")
+        Dim timeOutStr As String = timeOut.ToString("MMM dd, yyyy  hh:mm tt")
 
-        Dim plateStr As String = foundRow("PlateNumber").ToString()
-        Dim timeInStr As String = timeIn.ToString("hh:mm tt")
-        Dim timeOutStr As String = timeOut.ToString("hh:mm tt")
-        Dim hoursStr As String = hours & " hr(s)"
-        Dim isCar As Boolean = (foundRow("VehicleType").ToString() = "Four Wheels")
-        Dim baseRate As Decimal = If(isCar, ParkingData.CarBaseRate, ParkingData.MotorBaseRate)
-        Dim baseStr As String = "₱" & baseRate.ToString("F2") & " / hr"
-        Dim discountStr As String = cmbDiscount.Text
-        If discountStr = "None" Then discountStr = "-"
+        ' Duration wording: "1 hr" or "X hrs"
+        Dim hoursStr As String = If(hours <= 1, "1 hr", $"{CInt(hours)} hrs")
+
+        Dim plateStr As String = If(Not IsDBNull(foundRow("PlateNumber")), foundRow("PlateNumber").ToString(), "")
+        Dim paymentMethod As String = "Cash"
+        Dim cashierName As String = If(Not String.IsNullOrWhiteSpace(Form1.CurrentFullName), Form1.CurrentFullName, If(Not String.IsNullOrWhiteSpace(Form1.CurrentUsername), Form1.CurrentUsername, "Juan D."))
+        Dim receiptNo As String = DatabaseModule.GetNextReceiptNumber()
+        Dim parkingName As String = ParkingData.GetParkingName()
 
         Dim transId As Object = foundRow("TransactionID")
         Dim recordCode As String = foundRow("Code").ToString()
@@ -468,16 +541,18 @@ Public Class ParkingManagerForm
         Try
             Using conn As MySqlConnection = GetConnection()
                 If conn IsNot Nothing Then
-                    Dim updCmd As New MySqlCommand("UPDATE tblparkingrecord SET CheckOut = @checkout, TotalAmount = @amount, Duration = @time, `Paid Status` = 'Paid', DiscountType = @disc, PenaltyAmount = @pen, AmountPaid = @paid, ChangeAmount = @change, ProcessedByName = @proc, TellerID = @tellid WHERE TransactionID = @transId", conn)
+                    Dim updCmd As New MySqlCommand("UPDATE tblparkingrecord SET CheckOut = @checkout, TotalAmount = @amount, Duration = @time, `Paid Status` = 'Paid', DiscountType = @disc, PenaltyAmount = @pen, AmountPaid = @paid, ChangeAmount = @change, ProcessedByName = @proc, TellerID = @tellid, ReceiptNo = @recNo, PaymentMethod = @payMethod WHERE TransactionID = @transId", conn)
                     updCmd.Parameters.AddWithValue("@checkout", timeOut)
-                    updCmd.Parameters.AddWithValue("@amount", currentFee)
+                    updCmd.Parameters.AddWithValue("@amount", totalDue)
                     updCmd.Parameters.AddWithValue("@time", hoursStr)
                     updCmd.Parameters.AddWithValue("@disc", If(cmbDiscount.Text = "None", DBNull.Value, CObj(cmbDiscount.Text)))
                     updCmd.Parameters.AddWithValue("@pen", penaltyAmount)
                     updCmd.Parameters.AddWithValue("@paid", cashPaid)
                     updCmd.Parameters.AddWithValue("@change", calculatedChange)
-                    updCmd.Parameters.AddWithValue("@proc", Form1.CurrentFullName)
+                    updCmd.Parameters.AddWithValue("@proc", cashierName)
                     updCmd.Parameters.AddWithValue("@tellid", processedTellerID)
+                    updCmd.Parameters.AddWithValue("@recNo", receiptNo)
+                    updCmd.Parameters.AddWithValue("@payMethod", paymentMethod)
                     updCmd.Parameters.AddWithValue("@transId", transId)
                     Dim affected As Integer = updCmd.ExecuteNonQuery()
                     If affected = 0 Then
@@ -491,13 +566,37 @@ Public Class ParkingManagerForm
             Exit Sub
         End Try
 
+        If foundRow.Table.Columns.Contains("ReceiptNo") Then foundRow("ReceiptNo") = receiptNo
+        If foundRow.Table.Columns.Contains("PaymentMethod") Then foundRow("PaymentMethod") = paymentMethod
+
         DashBoardForm.LoadDataFromDatabase()
         DashBoardForm.UpdateSlots()
         UpdateManagerStats()
 
-        ' Show final receipt dialog after database commit
-        Dim checkoutDlg As New CheckoutDialog(plateStr, timeInStr, timeOutStr, hoursStr, baseStr, discountStr, penaltyAmount.ToString("F2"), currentFee.ToString("F2"), cashPaid.ToString("F2"), calculatedChange.ToString("F2"))
+        ' Show final receipt dialog after database commit with all fields
+        Dim checkoutDlg As New CheckoutDialog(receiptNo,
+                                              plateStr,
+                                              displayVType,
+                                              timeInStr,
+                                              timeOutStr,
+                                              hoursStr,
+                                              baseStr,
+                                              subtotalStr,
+                                              discountStr,
+                                              discountPercent,
+                                              discountAmount,
+                                              penaltyAmount,
+                                              totalDue,
+                                              paymentMethod,
+                                              cashPaid,
+                                              calculatedChange,
+                                              cashierName,
+                                              parkingName)
         OverlayHelper.ShowDialog(Me, checkoutDlg)
+
+        foundRow = Nothing
+        currentFee = 0D
+        penaltyAmount = 0D
 
         cboSearchPlate.Items.Remove(plateStr)
         If cboSearchPlate.AutoCompleteCustomSource.Contains(plateStr) Then
@@ -510,9 +609,6 @@ Public Class ParkingManagerForm
         lblFee.Text = "Total Fee: ₱0.00"
         lblChange.Text = "Change: ₱0.00"
         cmbDiscount.SelectedIndex = 0
-        foundRow = Nothing
-        currentFee = 0D
-        penaltyAmount = 0D
 
         RefreshParkedPlates()
     End Sub

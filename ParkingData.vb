@@ -16,6 +16,14 @@ Module ParkingData
     Public OverstayPenaltyFee As Decimal = 200.0D
 
     Public MaxSlots As Integer = 70
+    Public ParkingName As String = "JJRSP Parking System"
+
+    Public Function GetParkingName() As String
+        If Not String.IsNullOrWhiteSpace(ParkingName) Then
+            Return ParkingName
+        End If
+        Return "JJRSP Parking System"
+    End Function
 
     Public Function GenerateCode() As String
         Return "PK-" & Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()
@@ -43,6 +51,8 @@ Module ParkingData
             ParkingTable.Columns.Add("ReservationID", GetType(Integer))
             ParkingTable.Columns.Add("CustomerID", GetType(Integer))
             ParkingTable.Columns.Add("TellerID", GetType(Integer))
+            ParkingTable.Columns.Add("ReceiptNo", GetType(String))
+            ParkingTable.Columns.Add("PaymentMethod", GetType(String))
         End If
 
         If parkingDatabase.Count = 0 Then
@@ -56,6 +66,14 @@ Module ParkingData
                 parkingDatabase.Add($"U{i}", True)
             Next
         End If
+    End Sub
+
+    Public Sub ResetParkingSlots()
+        InitializeDatabase()
+        Dim keys As New List(Of String)(parkingDatabase.Keys)
+        For Each k As String In keys
+            parkingDatabase(k) = True
+        Next
     End Sub
 
     Public Sub InitializeUsers()
